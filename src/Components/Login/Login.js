@@ -1,13 +1,27 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 import { GlobalContext } from "../../GlobalContext";
 
-const LoginSignUp = () => {
-  const { supabase } = useContext(GlobalContext);
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const navigate = useNavigate();
+const Login = () => {
+    const { supabase } = useContext(GlobalContext);
+    const [password, setPassword] = useState("Konrad123!");
+    const [email, setEmail] = useState("amelia.draga@gmail.com");
+    const navigate = useNavigate();
+
+    const handleLogin = async () => {      
+        let { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        })    
+        if (error) {
+            console.log(error)
+            // alert("Nie udało się zalogować")
+        } 
+        if(data) {
+            console.log(data)
+        }
+    }
 
   return (
     <div className={styles.page}>
@@ -19,7 +33,7 @@ const LoginSignUp = () => {
                     </header>
                 <div className={styles.imageContainer}>
                     <h2 className={styles.title}>Zaloguj się</h2>
-                    <form className={styles.form}>
+                    <div className={styles.form}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="email" className={styles.labelRegister}>Email</label>
                             <input
@@ -46,8 +60,8 @@ const LoginSignUp = () => {
                             />
                         </div>
 
-                        <button type="submit" className={styles.loginButton}>Zaloguj</button>
-                    </form>
+                        <button onClick={handleLogin} className={styles.loginButton}>Zaloguj</button>
+                    </div>
 
                     <div className={styles.links}>
                         <a href="#" className={styles.link}>Other ways to sign in</a>
@@ -65,4 +79,4 @@ const LoginSignUp = () => {
   );
 };
 
-export default LoginSignUp;
+export default Login;

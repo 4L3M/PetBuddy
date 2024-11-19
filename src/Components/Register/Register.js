@@ -1,12 +1,62 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./Register.module.css";
 import Select from "react-select";
 import makeAnimated from 'react-select/animated';
+import { GlobalContext } from "../../GlobalContext";
+import { useContext } from "react";
 
 
 import { useState } from "react";
 
 const Register = () => {
+
+  const { supabase } = useContext(GlobalContext);
+  const [password, setPassword] = useState("Konrad123!");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("Konrad123!");
+  const [email, setEmail] = useState("czadowa.mela@gmail.com");
+
+  const [firstName, setFirstName] = useState("Mela");
+  const [lastName, setLastName] = useState("Kot");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("Wolsztyn");
+
+  const handleSignUp = async () => {
+
+    if (password !== passwordConfirmation) {
+      console.log("Hasła nie są takie same");
+      return;
+    }
+
+    let { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password
+    })
+
+    if (error) {
+      console.log(error)
+      // alert("Nie udało się zalogować")
+    } 
+
+    if(data?.user) {
+        console.log(data)
+        const id = data.user.id;
+        const { user, error } = await supabase
+        .from('users')
+        .insert([
+          { user_id: id, name: firstName, surname: lastName, location: location },
+        ])
+        .select()
+        if (error) {
+          console.log(error)
+          // alert("Nie udało się zalogować")
+        }
+
+        if(user) {
+          console.log("kondek"+ user)
+        }
+      }
+  }
+
 
   const locationOptions = [
     { value: "babimost", label: "Babimost" },
@@ -178,7 +228,7 @@ const Register = () => {
             />
           </div>
 
-          <button type="submit" className={styles.loginButton}>
+          <button onClick={handleSignUp} className={styles.loginButton}>
             Zarejestruj się
           </button>
         </form>
