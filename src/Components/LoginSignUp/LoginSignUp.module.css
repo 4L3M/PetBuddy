@@ -1,0 +1,176 @@
+.page {
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #F2D9C8 0%, #F2D9C8 60%, #FAC9CE 75%);
+
+    margin: 0;
+  }
+  
+  .header {
+    display: flex;
+    text-align: center;
+    justify-content: flex-end;
+    background-color: #F2D9C8;
+    padding: 1%;
+    padding-right: 5%;
+    padding-left: 20%;
+    color: white;
+    font-size: 18px;
+  }
+  
+  .homeLink {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; /* Zapewnia równą wysokość dzieci */
+    flex-grow: 1;
+    height: auto;
+    min-height: 100%; /* Zapewnia minimum 100% wysokości rodzica */
+    background-image: url('../Assets/preview (4).webp');
+    background-size: auto 100%; /* Dopasowanie wysokości obrazka */
+    background-repeat: no-repeat;
+    background-position: right; /* Obraz wyrównany do prawej */
+    padding: 0;
+}
+
+.imageContainer {
+    display: flex; /* Flexbox */
+    flex-direction: column; /* Układ w kolumnie */
+    justify-content: center; /* Wyśrodkowanie pionowe */
+    align-items: center; /* Wyśrodkowanie poziome */
+    min-width: fit-content; /* Szerokość formularza */
+    height: 100%; /* Wysokość taka sama jak rodzica */
+    background: rgba(255, 255, 255, 0.8); /* Półprzezroczyste tło */
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-left: 10%;
+    margin-bottom: 20px;
+    box-sizing: border-box; /* Uwzględnia padding w obliczeniach wysokości */
+}
+
+  
+  .formContainer {
+    text-align: left;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #444;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .inputGroup {
+    margin-bottom: 15px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .inputGroupRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;   
+  }
+  
+  .label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .input {
+    width: min-content;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .inputLong {
+    width: 100%;
+  }
+  
+  .loginButton {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    background-color: #93C6F7;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .loginButton:hover {
+    background-color: #ff6f61;
+  }
+  
+  .links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .link {
+    font-size: 14px;
+    color: #ff6f61;
+    text-decoration: none;
+  }
+  
+  .link:hover {
+    text-decoration: underline;
+  }
+  
+  .createAccountButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    justify-self: center;
+    max-width: 400px;
+    background-color: transparent;
+    border: 2px solid #ff9aa2;
+    color: #ff9aa2;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .createAccountButton:hover {
+    background-color: #ff9aa2;
+    color: white;
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 10px 0;
+    background-image: linear-gradient(to right, #DB73BC, #93C6F7, #9290CD);    color: white;
+    font-size: 14px;
+  }
+  

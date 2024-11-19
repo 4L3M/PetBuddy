@@ -1,0 +1,136 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .mainContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+  }
+  
+  .leftContainer {
+    background-image: url('../Assets/preview.webp'); /* Replace with your image URL */
+    background-size: cover;
+    background-position: center;
+    width: 50%; /* Take up half of the screen */
+    height: 100vh; /* Ensure it spans the full height of the screen */
+  }
+  
+  .rightContainer {
+    min-width: 400px;
+    background-color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    /* align-items: center; */
+    box-sizing: border-box;
+    width: 50%; /* Right container takes the other half of the screen */
+  }
+  
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 1%;
+    padding-right: 5%;
+    padding-left: 20%;
+    color: black;
+    font-size: 18px;
+  }
+  
+  .homeLink {
+    color: #000;
+    padding-right: 5%;
+    text-decoration: none;
+  }
+  
+  .imageContainer {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+  }
+  
+  .title {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .inputGroup {
+    margin-bottom: 15px;
+  }
+  
+  .labelRegister {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .inputLong {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .loginButton {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .links {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .link {
+    color: #007BFF;
+    text-decoration: none;
+  }
+  
+  .createAccountButton {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .footer {
+    background-image: linear-gradient(to right, #E85579, #ACDBEA, #AF81CE);
+    text-align: center;
+    padding: 10px;
+    margin-top: auto;
+  }
+  
+  /* Hide the left container and make the right container full width on small screens */
+  @media (max-width: 768px) {
+    .mainContainer {
+      flex-direction: column; /* Stack the containers vertically */
+    }
+  
+    .leftContainer {
+      display: none; /* Hide the left container on small screens */
+    }
+  
+    .rightContainer {
+      width: 100%; /* Right container takes full width */
+      height: auto; /* Allow the right container to grow based on content */
+    }
+  }
+  
