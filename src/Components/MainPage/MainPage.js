@@ -1,33 +1,9 @@
 import styles from './MainPage.module.css';
 import { React, useState } from 'react';
 import logo from '../Assets/logo.png';
-import { Button } from 'react-bootstrap';  // Import Button component from react-bootstrap
+import { Button } from 'react-bootstrap';
 
 const MainPage = () => {
-
-    const RoleButton = () => {
-        const roles = [
-            { name: 'Srodek', value: '1' },
-            { name: 'Chcę się opiekować zwierzętami', value: '2' },
-            { name: 'Szukam opieki dla swojego zwierzęcia', value: '3' },
-        ];
-
-        return (
-            <div className={styles.buttonGroup}>
-                {roles.map((role) => (
-                    <Button
-                        key={role.value}
-                        variant={selectedRole === role.value ? 'primary' : 'secondary'} // Highlight selected role
-                        onClick={() => setSelectedRole(role.value)} // Update state on button click
-                        className={styles.roleButton} // Custom styles for the button
-                    >
-                        {role.name}
-                    </Button>
-                ))}
-            </div>
-        );
-    }
-
     const [selectedRole, setSelectedRole] = useState('1'); // Default selected role
 
     const ads = [
@@ -36,48 +12,90 @@ const MainPage = () => {
         { id: 3, name: "Brak zdjęcia", avatar: "" },
     ];
 
+    const filters = [
+        { id: 1, label: 'Tylko z oceną powyżej 4.0', checked: false },
+        { id: 2, label: 'Tylko w promieniu 10 km', checked: false },
+        { id: 3, label: 'Tylko dostępne teraz', checked: false },
+    ];
+
+    const [selectedFilters, setSelectedFilters] = useState(
+        filters.map((filter) => ({ ...filter }))
+    );
+
+    const handleFilterChange = (id) => {
+        setSelectedFilters((prevFilters) =>
+            prevFilters.map((filter) =>
+                filter.id === id ? { ...filter, checked: !filter.checked } : filter
+            )
+        );
+    };
+
     return (
         <div className={styles.page}>
-            <header className={styles.header}> 
-                <img src={logo} className={styles.logo} alt="logo" />   
+            <header className={styles.header}>
+                <img src={logo} className={styles.logo} alt="logo" />
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <RoleButton />
-                    {/* <select className="goal-select">
-                        <option>Wybierz swój cel</option>
-                        <option>Szukanie opiekuna</option>
-                        <option>Inne</option>
-                    </select> */}
+                    <div className={styles.buttonGroup}>
+                        <Button
+                            variant={selectedRole === '2' ? 'primary' : 'secondary'}
+                            onClick={() => setSelectedRole('2')}
+                            className={styles.roleButton}
+                        >
+                            Chcę się opiekować zwierzętami
+                        </Button>
+                        <Button
+                            variant={selectedRole === '3' ? 'primary' : 'secondary'}
+                            onClick={() => setSelectedRole('3')}
+                            className={styles.roleButton}
+                        >
+                            Szukam opieki dla swojego zwierzęcia
+                        </Button>
+                    </div>
                 </div>
-                <div style={{display:'flex', flexDirection:'column'}}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <button>Zaloguj się</button>
                     <button>Zarejestruj się</button>
                 </div>
             </header>
 
-            {/* Filtry i sortowanie */}
-            <div className={styles.filters}>
-                <button className="filter-button">Filtruj</button>
-                Sortuj:
-                <select className="sort-select">
-                    <option>Odległość</option>
-                    <option>Ocena</option>
-                </select>
-            </div>
-
-            {/* Lista ogłoszeń */}
-            <div className={styles.ads}>
-                <h2>Wybrane ogłoszenia:</h2>
-                <div className={styles.adsList}>
-                    {ads.map((ad) => (
-                        <div key={ad.id} className={styles.adCard}>
-                            <img
-                                src={ad.avatar}
-                                alt={ad.name}
-                                className={styles.avatar}
+            <div className={styles.mainContent}>
+                {/* Sekcja filtrów */}
+                <div className={styles.sideFilters}>
+                    <h3>Filtry</h3>
+                    {selectedFilters.map((filter) => (
+                        <label key={filter.id} className={styles.filterOption}>
+                            <input
+                                type="checkbox"
+                                checked={filter.checked}
+                                onChange={() => handleFilterChange(filter.id)}
                             />
-                            <p>{ad.name}</p>
-                        </div>
+                            {filter.label}
+                        </label>
                     ))}
+                </div>
+
+                {/* Sekcja ogłoszeń */}
+                <div className={styles.ads}>
+                    <h2>Wybrane ogłoszenia:</h2>
+                    <div className={styles.sortSection}>
+                        Sortuj:
+                        <select className="sort-select">
+                            <option>Odległość</option>
+                            <option>Ocena</option>
+                        </select>
+                    </div>
+                    <div className={styles.adsList}>
+                        {ads.map((ad) => (
+                            <div key={ad.id} className={styles.adCard}>
+                                <img
+                                    src={ad.avatar}
+                                    alt={ad.name}
+                                    className={styles.avatar}
+                                />
+                                <p>{ad.name}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -86,6 +104,6 @@ const MainPage = () => {
             </footer>
         </div>
     );
-}
+};
 
 export default MainPage;
