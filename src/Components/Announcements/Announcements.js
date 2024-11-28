@@ -1,4 +1,4 @@
-import styles from './MainPage.module.css';
+import styles from './Announcements.module.css';
 import { React, useState, useEffect, useContext } from 'react';
 import logo from '../Assets/logo.png';
 import { Button } from 'react-bootstrap';
@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { GlobalContext } from '../../GlobalContext';
 
-const MainPage = () => {
+const Announcements = () => {
     const { supabase } = useContext(GlobalContext);
     const navigate = useNavigate();
 
@@ -38,7 +38,7 @@ const MainPage = () => {
     useEffect(() => {
         const getUserData = async () => {
             const { data: userData } = await supabase.auth.getUser();
-            if (userData?.user?.id) {
+            if (userData) {
                 setUser(userData.user);
 
                 // Pobierz szczegóły użytkownika
@@ -67,48 +67,22 @@ const MainPage = () => {
                 .from('announcement')
                 .select('*')
                 .eq('active', true) // Pobieramy tylko aktywne ogłoszenia
+                .eq('owner_id', user?.id) // Filtrowanie po user_id, aby tylko ogłoszenia danego użytkownika były wyświetlane
                 .order('added_at', { ascending: false }); // Sortujemy po dacie dodania
-
-            // Filtrowanie wg lokalizacji (jeśli podano)
-            if (filters.location) {
-                query = query.ilike('location', `%${filters.location}%`);
-            }
-
-            // Filtrowanie wg roli
-            if(selectedRole){
-                if (selectedRole === 'owner') {
-                    query = query.eq('announcement_type', 'looking_for_sitter');
-                } else if (selectedRole === 'petsitter' ) {
-                    query = query.eq('announcement_type', 'offering_services');
-                }
-            }
 
             const { data, error } = await query;
             if (error) {
                 console.error('Błąd pobierania ogłoszeń:', error);
             } else {
-                console.log(data);
+                
                 setAds(data);
             }
             setLoading(false);
         };
-        
+        if (selectedRole) {
             fetchAnnouncements();
-        
-    }, [selectedRole, filters, supabase, userDetails]);
-
-    const handleRoleChange = (role) => {
-        setSelectedRole(role);
-        console.log(role);
-    };
-
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [name]: value,
-        }));
-    };
+        }
+    }, [selectedRole, filters, supabase]);
 
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -125,21 +99,13 @@ const MainPage = () => {
             <header className={styles.header}>
                 <img src={logo} className={styles.logo} alt="logo" />
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    {user ? (
                         <>
                             <Button
-                                onClick={() => navigate('/profile')}
-                                variant="primary"
-                                className={styles.profileButton}
-                            >
-                                Twój profil
-                            </Button>
-                            <Button
-                                onClick={() => navigate('/announcements')}
+                                onClick={() => navigate('/')}
                                 variant="info"
                                 className={styles.announcementButton}
                             >
-                                Twoje ogłoszenia
+                                Szukaj ogłoszeń
                             </Button>
                             <Button
                                 onClick={handleLogout}
@@ -149,70 +115,22 @@ const MainPage = () => {
                                 Wyloguj się
                             </Button>
                         </>
-                    ) : (
-                        <div className={styles.buttonGroup}>
-                            <Button
-                                variant={selectedRole === 'petsitter' ? 'primary' : 'secondary'}
-                                onClick={() => handleRoleChange('petsitter')}
-                                className={styles.roleButton}
-                            >
-                                Chcę się opiekować zwierzętami
-                            </Button>
-                            <Button
-                                variant={selectedRole === 'owner' ? 'primary' : 'secondary'}
-                                onClick={() => handleRoleChange('owner')}
-                                className={styles.roleButton}
-                            >
-                                Szukam opieki dla swojego zwierzęcia
-                            </Button>
-                        </div>
-                    )}
                 </div>
-                {!user && (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Button onClick={() => navigate('/login')} variant="primary">
-                            Zaloguj się
-                        </Button>
-                        <Button onClick={() => navigate('/register')} variant="success">
-                            Zarejestruj się
-                        </Button>
-                    </div>
-                )}
             </header>
 
             <div className={styles.mainContent}>
-                {user && (
-                    <div className={styles.sideFilters}>
-                        <h3>Filtry</h3>
-                        <label className={styles.filterOption}>
-                            Lokalizacja:
-                            <select
-                                name="location"
-                                value={filters.location}
-                                onChange={handleFilterChange}
-                            >
-                                <option value="">Wybierz lokalizację</option>
-                                {locations.map((loc) => (
-                                    <option key={loc} value={loc}>
-                                        {loc}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                    </div>
-                )}
-
+                
                 <div className={styles.ads}>
-                    <div style={{display:'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <h2>{userDetails ? `${userDetails.name} ogłoszenia dla Ciebie` : 'Ogłoszenia dla Ciebie'}</h2>
-                        <button onClick={() => navigate('/add-announcement')}>Dodaj ogłoszenie</button>
-                    </div>
+                <div style={{display:'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <h2>{userDetails?.name}, Twoje ogłoszenia</h2>
+                    <button onClick={() => navigate('/add-announcement')}>Dodaj ogłoszenie</button>
+                </div>
                 {loading ? (
                         <p>Ładowanie ogłoszeń...</p>
                     ) : ads.length > 0 ? (
                         <div className={styles.adsList}>
                             {ads.map((ad) => (
-                                <div key={ad.announcement_id} className={styles.adCard}>
+                                <div key={ad.announcement_id} className={styles.adCard} >
                                     <h3>{ad.name}</h3>
                                     <p>{ad.text}</p>
                                     <p>Lokalizacja: {ad.location}</p>
@@ -233,4 +151,4 @@ const MainPage = () => {
     );
 };
 
-export default MainPage;
+export default Announcements;

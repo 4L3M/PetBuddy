@@ -18,8 +18,11 @@ const Login = () => {
             console.log(error)
             // alert("Nie udało się zalogować")
         } 
-        if(data) {
-            console.log(data)
+        if(data?.user) {
+            navigate("/"); // Przekierowanie po udanym logowaniu
+        }else
+        {
+            alert("Nie udało się zalogować")
         }
     }
 
