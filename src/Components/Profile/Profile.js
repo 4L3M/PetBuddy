@@ -5,163 +5,129 @@ import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../GlobalContext';
 
 const Profile = () => {
-    const { supabase } = useContext(GlobalContext);
-    const navigate = useNavigate();
+  const { supabase } = useContext(GlobalContext);
+  const navigate = useNavigate();
 
-    const [name, setName] = useState("");
-    const [surname, setSurname] = useState("");
-    const [phone , setPhone] = useState("");
-    const [location, setLocation] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConfirmation, setPasswordConfirmation] = useState("");
-    const [accountType, setAccountType] = useState(""); // Typ konta
-    const [userId, setUserId] = useState("");
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [accountType, setAccountType] = useState([]);
+  const [userId, setUserId] = useState("");
 
-    const locationOptions = [
-      { value: "Babimost", label: "Babimost" },
-      { value: "Wolsztyn", label: "Wolsztyn" },
-      { value: "Wroclaw", label: "Wrocław" },
-      { value: "Gdańsk", label: "Gdańsk" },
-    ];
+  const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
+  const accountTypes = ["both","owner", "petsitter"];
 
-        // Opcje dla account_type
-    const accountTypes = [
-        { value: "owner", label: "Właściciel zwierząt" },
-        { value: "petsitter", label: "Opiekun zwierząt" },
-    ];
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const sessionResponse = await supabase.auth.getSession();
+      const session = sessionResponse.data.session;
 
-    const [selectedLocations, setSelectedLocations] = useState([]);
-    const [selectedAccountTypes, setSelectedAccountTypes] = useState([]);
-    
-    const handleLocationSelection = (location) => {
-      setSelectedLocations((prev) =>
-        prev.includes(location)
-          ? prev.filter((loc) => loc !== location) // Usuń, jeśli już zaznaczone
-          : [...prev, location] // Dodaj, jeśli jeszcze nie zaznaczone
-      );
-     // console.log(selectedLocations);
-    };
-    
-    const handleAccountTypeSelection = (type) => {
-      setSelectedAccountTypes((prev) =>
-        prev.includes(type)
-          ? prev.filter((t) => t !== type) // Usuń, jeśli już zaznaczone
-          : [...prev, type] // Dodaj, jeśli jeszcze nie zaznaczone
-      );
-    };
-    
-    
+      if (session) {
+        const user = session.user;
+        setUserId(user.id);
 
-    // Pobieranie danych użytkownika
-    useEffect(() => {
-        const fetchUserData = async () => {
-        const sessionResponse = await supabase.auth.getSession();
-        const session = sessionResponse.data.session;
+        const { data: userDetails, error } = await supabase
+          .from("users_details")
+          .select("*")
+          .eq("user_id", user.id);
 
-        if (session) {
-            const user = session.user;
-            setUserId(user.id);
-            setEmail(user.email);
-
-            // Pobranie szczegółowych danych użytkownika z tabeli `users_details`
-            let { data: userDetails, error } = await supabase
-            .from("users_details")
-            .select("*")
-            .eq("user_id", user.id);
-
-            if (error) {
-            console.error("Błąd podczas pobierania danych użytkownika:", error);
-            } else if (userDetails && userDetails.length > 0) {
-            setName(userDetails[0].name);
-            setSurname(userDetails[0].surname);
-            setPhone(userDetails[0].phone);
-            setLocation(userDetails[0].location);
-            setAccountType(userDetails[0].account_type); // Pobranie account_type
-            }
-        } else {
-            navigate("/login"); // Jeśli użytkownik nie jest zalogowany, przekieruj na stronę logowania
-        }
-        };
-
-        fetchUserData();
-    }, [supabase, navigate]);
-
-    // Aktualizacja danych użytkownika
-    const handleUpdateProfile = async (event) => {
-        event.preventDefault();
-
-        if (!userId) {
-        console.error("Brak ID użytkownika. Nie można zaktualizować danych.");
-        return;
-        }
-
-        // Aktualizacja danych użytkownika w tabeli `users_details`
-        const { data, error } = await supabase
-        .from('users_details')
-        .update({
-              name: name,
-              surname: surname,
-              phone: phone,
-              location: location,
-              account_type: accountType,
-          })
-        .eq("user_id", userId)
-        .select();
-      
         if (error) {
-          if (error) {
-            console.error("Błąd podczas aktualizacji danych użytkownika:", error.message);
-            console.error("Szczegóły błędu:", error.details);
-            console.error("Sugestie:", error.hint);
-          } else {
-            console.log("Dane użytkownika zostały pomyślnie zaktualizowane:", data);
-            console.log(data);
+          console.error("Błąd podczas pobierania danych użytkownika:", error);
+        } else if (userDetails && userDetails.length > 0) {
+          const userData = userDetails[0];
+          setName(userData.name || "");
+          setSurname(userData.surname || "");
+          setPhone(userData.phone || "");
+          setLocation(userData.location || "");
+          setAccountType(userData.account_type || "");
         }
+      } else {
+        navigate("/login");
       }
     };
 
-
-        // Zmiana hasła
-    const handleChangePassword = async () => {
-        const { error } = await supabase.auth.updateUser({ password: password });
-
-        if (error) {
-        console.error("Błąd podczas zmiany hasła:", error);
-        } else {
-        console.log("Hasło zostało zmienione.");
-        }
-    };
+    fetchUserData();
+  }, [supabase, navigate]);
 
 
-    return (
-        <div className={styles.page}>
-            {/* Header */}
-            <header className={styles.header}>
-                <img src={logo} className={styles.logo} alt="logo" />
-                <h1>Twój profil</h1>
-                <button 
-                    onClick={() => navigate("/")} 
-                    className={styles.logoutButton}>
-                        Powrót do strony głównej
-                </button>
-            </header>
+  const [isOwnerClicked, setIsOwnerClicked] = useState(false);
+  const [isPetsitterClicked, setIsPetsitterClicked] = useState(false);
+  
+  const handleAccountType = (type) => {
+    if (type === "owner") {
+      setIsOwnerClicked((prev) => !prev);
+    } else if (type === "petsitter") {
+      setIsPetsitterClicked((prev) => !prev);
+    }
+  };
+  
+  useEffect(() => {
+    // Ustawienie accountType na podstawie stanu przycisków
+    if (isOwnerClicked && isPetsitterClicked) {
+      setAccountType("both");
+    } else if (isOwnerClicked) {
+      setAccountType("owner");
+    } else if (isPetsitterClicked) {
+      setAccountType("petsitter");
+    } else {
+      setAccountType(""); // Jeśli nic nie jest wybrane
+    }
+  
+    // Debugowanie w konsoli
+    console.log("isOwnerClicked:", isOwnerClicked);
+    console.log("isPetsitterClicked:", isPetsitterClicked);
+    console.log("accountType:", accountType);
+  }, [isOwnerClicked, isPetsitterClicked]); // Uruchamiane przy zmianie stanu przycisków
+  
 
-{/* Main Content */}
-<form 
-    className={styles.profileForm} 
-    onSubmit={handleUpdateProfile}>
-        <div className={styles.inputGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            disabled
-            required
-          />
-        </div>
+  const handleUpdateProfile = async (event) => {
+    event.preventDefault();
 
+ if (!accountType) {
+    console.error("Musisz wybrać przynajmniej jeden typ konta.");
+    alert("Musisz wybrać przynajmniej jeden typ konta."); // Opcjonalny alert dla użytkownika
+    return;
+  }
+
+    if (!userId) {
+      console.error("Brak ID użytkownika. Nie można zaktualizować danych.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('users_details')
+      .update({
+        name,
+        surname,
+       // phone,
+        location,
+        account_type: accountType.includes('both') ? 'both' : accountType.join(','),
+      })
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Błąd podczas aktualizacji danych:", error.message);
+    } else {
+      console.log("Dane użytkownika zostały zaktualizowane:", data);
+    }
+  };
+
+  return (
+    <div className={styles.page}>
+      {/* Header */}
+      <header className={styles.header}>
+        <img src={logo} className={styles.logo} alt="logo" />
+        <h1>Twój profil</h1>
+        <button 
+          onClick={() => navigate("/")} 
+          className={styles.logoutButton}>
+          Powrót do strony głównej
+        </button>
+      </header>
+
+      {/* Main Content */}
+      <form className={styles.profileForm} onSubmit={handleUpdateProfile}>
         <div className={styles.inputGroup}>
           <label htmlFor="name">Imię</label>
           <input
@@ -191,63 +157,48 @@ const Profile = () => {
             id="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            
           />
         </div>
 
         <div className={styles.inputGroup}>
           <label htmlFor="location">Lokalizacja</label>
-          <div className={styles.buttonGroup}>
-            {['Babimost', 'Wolsztyn'].map((loc) => (
-              <button
-                key={loc}
-                type="button"
-                className={`${styles.typeButton} ${
-                  location === loc ? styles.active : ''
-                }`}
-                onClick={() => setLocation(loc)}
-              >
+          <select
+            id="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+          >
+            <option value="">Wybierz lokalizację</option>
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>
                 {loc}
-              </button>
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         <div className={styles.inputGroup}>
           <label>Typ konta</label>
           <div className={styles.buttonGroup}>
-            {['owner', 'sitter'].map((type) => (
-              <button
-                key={type}
-                type="button"
-                className={`${styles.typeButton} ${
-                  selectedAccountTypes.includes(type) ? styles.active : ''
-                }`}
-                onClick={() => handleAccountTypeSelection(type)}
-              >
-                {type === 'owner' ? 'Właściciel' : 'Opiekun'}
-              </button>
-            ))}
+            <button
+              type="button"
+              className={isOwnerClicked ? styles.activeButton : styles.inactiveButton}
+              onClick={() => handleAccountType("owner")}
+            >
+              Właściciel
+            </button>
+            <button
+              type="button"
+              className={isPetsitterClicked ? styles.activeButton : styles.inactiveButton}
+              onClick={() => handleAccountType("petsitter")}
+            >
+              Opiekun
+            </button>
           </div>
         </div>
 
 
-
-        <div className={styles.inputGroup}>
-          <label htmlFor="password">Zmień hasło</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Wprowadź nowe hasło"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="button" onClick={handleChangePassword}>
-            Zmień hasło
-          </button>
-        </div>
-
-        <button type="submit" className={styles.updateButton} onClick={handleUpdateProfile}>
+        <button type="submit" className={styles.updateButton}>
           Zapisz zmiany
         </button>
       </form>
@@ -260,5 +211,4 @@ const Profile = () => {
   );
 };
 
-
-export default Profile
+export default Profile;
