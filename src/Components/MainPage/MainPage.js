@@ -59,6 +59,15 @@ const MainPage = () => {
         getUserData();
     }, [supabase]);
 
+    useEffect(() => {
+        if (userDetails) {
+            setFilters((prevFilters) => ({
+                ...prevFilters,
+                location: userDetails.location || '', // Ustaw lokalizację z profilu
+            }));
+        }
+    }, [userDetails]);
+
     // Pobierz ogłoszenia na podstawie roli i filtrów
     useEffect(() => {
         const fetchAnnouncements = async () => {
@@ -95,7 +104,8 @@ const MainPage = () => {
         
             fetchAnnouncements();
         
-    }, [selectedRole, filters, supabase, userDetails]);
+    }, [selectedRole, filters, supabase]);
+
 
     const handleRoleChange = (role) => {
         setSelectedRole(role);
