@@ -6,7 +6,7 @@ import Register from './Components/Register/Register';
 import MainPage from './Components/MainPage/MainPage';
 import Profile from './Components/Profile/Profile';
 import AddAnnouncement from './Components/AddAnnouncement/AddAnnouncement';
-import Announcements from './Components/Announcements/Announcements';
+import UserAnnouncements from './Components/Announcements/UserAnnouncements';
 
 import { GlobalProvider } from './GlobalContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -22,7 +22,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/add-announcement" element={<AddAnnouncement />} />
-          <Route path="/announcements" element={<Announcements />} />
+          <Route path="/announcements" element={<UserAnnouncements />} />
         </Routes>
       </BrowserRouter>
     </GlobalProvider>

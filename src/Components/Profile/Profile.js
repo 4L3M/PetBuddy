@@ -1,5 +1,5 @@
-import styles from './Profile.module.css';
 import { React, useContext, useEffect, useState } from 'react';
+import styles from './Profile.module.css';
 import logo from '../Assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../GlobalContext';
@@ -12,11 +12,15 @@ const Profile = () => {
   const [surname, setSurname] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
-  const [accountType, setAccountType] = useState([]);
+  const [accountType, setAccountType] = useState("");
+  const [preferredAnimals, setPreferredAnimals] = useState([]); // Nowy stan
   const [userId, setUserId] = useState("");
 
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
-  const accountTypes = ["both","owner", "petsitter"];
+  const animals = ["kot", "pies", "inne"]; // Lista zwierząt
+
+  const [isOwnerClicked, setIsOwnerClicked] = useState(false);
+  const [isPetsitterClicked, setIsPetsitterClicked] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -38,9 +42,10 @@ const Profile = () => {
           const userData = userDetails[0];
           setName(userData.name || "");
           setSurname(userData.surname || "");
-          setPhone(userData.phone || "");
+         // setPhone(userData.phone || "");
           setLocation(userData.location || "");
           setAccountType(userData.account_type || "");
+          setPreferredAnimals(userData.preferred_animals?.split(",") || []);
         }
       } else {
         navigate("/login");
@@ -50,10 +55,6 @@ const Profile = () => {
     fetchUserData();
   }, [supabase, navigate]);
 
-
-  const [isOwnerClicked, setIsOwnerClicked] = useState(false);
-  const [isPetsitterClicked, setIsPetsitterClicked] = useState(false);
-  
   const handleAccountType = (type) => {
     if (type === "owner") {
       setIsOwnerClicked((prev) => !prev);
@@ -61,9 +62,8 @@ const Profile = () => {
       setIsPetsitterClicked((prev) => !prev);
     }
   };
-  
+
   useEffect(() => {
-    // Ustawienie accountType na podstawie stanu przycisków
     if (isOwnerClicked && isPetsitterClicked) {
       setAccountType("both");
     } else if (isOwnerClicked) {
@@ -71,38 +71,35 @@ const Profile = () => {
     } else if (isPetsitterClicked) {
       setAccountType("petsitter");
     } else {
-      setAccountType(""); // Jeśli nic nie jest wybrane
+      setAccountType("");
     }
-  
-    // Debugowanie w konsoli
-    console.log("isOwnerClicked:", isOwnerClicked);
-    console.log("isPetsitterClicked:", isPetsitterClicked);
-    console.log("accountType:", accountType);
-  }, [isOwnerClicked, isPetsitterClicked]); // Uruchamiane przy zmianie stanu przycisków
-  
+  }, [isOwnerClicked, isPetsitterClicked]);
+
+  const handleAnimalPreference = (animal) => {
+    setPreferredAnimals((prev) =>
+      prev.includes(animal)
+        ? prev.filter((a) => a !== animal)
+        : [...prev, animal]
+    );
+  };
 
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
 
- if (!accountType) {
-    console.error("Musisz wybrać przynajmniej jeden typ konta.");
-    alert("Musisz wybrać przynajmniej jeden typ konta."); // Opcjonalny alert dla użytkownika
-    return;
-  }
-
-    if (!userId) {
-      console.error("Brak ID użytkownika. Nie można zaktualizować danych.");
+    if (!accountType) {
+      alert("Musisz wybrać przynajmniej jeden typ konta.");
       return;
     }
 
     const { data, error } = await supabase
-      .from('users_details')
+      .from("users_details")
       .update({
         name,
         surname,
        // phone,
         location,
-        account_type: accountType.includes('both') ? 'both' : accountType.join(','),
+        account_type: accountType,
+        animal_type: preferredAnimals.join(","),
       })
       .eq("user_id", userId);
 
@@ -115,18 +112,14 @@ const Profile = () => {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
       <header className={styles.header}>
         <img src={logo} className={styles.logo} alt="logo" />
         <h1>Twój profil</h1>
-        <button 
-          onClick={() => navigate("/")} 
-          className={styles.logoutButton}>
+        <button onClick={() => navigate("/")} className={styles.logoutButton}>
           Powrót do strony głównej
         </button>
       </header>
 
-      {/* Main Content */}
       <form className={styles.profileForm} onSubmit={handleUpdateProfile}>
         <div className={styles.inputGroup}>
           <label htmlFor="name">Imię</label>
@@ -197,13 +190,29 @@ const Profile = () => {
           </div>
         </div>
 
+        {isPetsitterClicked && (
+          <div className={styles.inputGroup}>
+            <label>Jakimi zwierzętami preferuję się opiekować:</label>
+            <div className={styles.checkboxGroup}>
+              {animals.map((animal) => (
+                <label key={animal}>
+                  <input
+                    type="checkbox"
+                    checked={preferredAnimals.includes(animal)}
+                    onChange={() => handleAnimalPreference(animal)}
+                  />
+                  {animal}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         <button type="submit" className={styles.updateButton}>
           Zapisz zmiany
         </button>
       </form>
 
-      {/* Footer */}
       <footer className={styles.footer}>
         <p>&copy; Amelia</p>
       </footer>

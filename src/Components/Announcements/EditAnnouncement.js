@@ -18,7 +18,7 @@ const AddAnnouncement = () => {
     const [adsForRole, setAdsForRole] = useState([]);
     const [userAnimals, setUserAnimals] = useState([]);
     const [adType, setAdType] = useState('');
-    const [animalType, setAnimalType] = useState('');
+
 
     const [formData, setFormData] = useState({
         name: '',
@@ -27,17 +27,10 @@ const AddAnnouncement = () => {
         location: '',
         added_at: '',
         active: true,
-        animal_id: '', // Inicjalizacja tablicy dla ID zwierząt
+        animal_ids: [], // Inicjalizacja tablicy dla ID zwierząt
         owner_id: user?.id,
-        animal_type: '',
     });
 
-    const ANIMAL_TYPE_MAP = {
-        Pies: 'dog',
-        Kot: 'cat',
-        Inne: 'other',
-    };
-    
     useEffect(() => {
         const getUserData = async () => {
             const { data: userData } = await supabase.auth.getUser(); // Pobieranie danych użytkownika z Supabase Auth
@@ -77,7 +70,7 @@ const AddAnnouncement = () => {
                 const { data: animals, error } = await supabase
                     .from('animals')
                     .select('animal_id, name') 
-                    .eq('owner_id', userData?.user.id);
+                    .eq('owner_id', userData.user.id);
     
                 if (error) {
                     console.error('Błąd pobierania zwierząt:', error);
@@ -88,7 +81,7 @@ const AddAnnouncement = () => {
     
                 setFormData((prevData) => ({
                     ...prevData,
-                    owner_id: userData?.user.id,
+                    owner_id: userData.user.id,
                 }));
             }
         };
@@ -118,27 +111,6 @@ const AddAnnouncement = () => {
         });
     };
     
-    const handleAnimalTypesSelection = (animalType) => {
-        setFormData((prevData) => {
-            const selectedAnimalTypes = prevData.animal_type || [];
-            const isSelected = selectedAnimalTypes.includes(animalType);
-    
-            if (isSelected) {
-                // Usuń typ zwierzęcia, jeśli był już wybrany
-                return {
-                    ...prevData,
-                    animal_type: selectedAnimalTypes.filter((type) => type !== animalType),
-                };
-            } else {
-                // Dodaj typ zwierzęcia, jeśli jeszcze nie był wybrany
-                return {
-                    ...prevData,
-                    animal_type: [...selectedAnimalTypes, animalType],
-                };
-            }
-        });
-    };
-    
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -163,7 +135,7 @@ const AddAnnouncement = () => {
         <div className={styles.page}>
             <header className={styles.header}>
                 <img src={logo} className={styles.logo} alt="logo" />
-                <div style={{ display: 'flex', flexDirection: 'row' }} >
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Button variant="danger" className={styles.logoutButton}>
                             Strona główna
                         </Button>
@@ -172,7 +144,7 @@ const AddAnnouncement = () => {
 
             <div className={styles.mainContent}>
                 <div className={styles.ads}>
-                        <h2>Dodaj ogłoszenie</h2>
+                        <h2>Edytuj ogłoszenie</h2>
                         <form onSubmit={handleSubmit} className={styles.newAdd}>
                             <label>
                                 Jakie ogłoszenie chcesz dodać?:
@@ -210,26 +182,6 @@ const AddAnnouncement = () => {
                                     </div>
                                 </div>
                             )}
-
-                            {formData.announcement_type === 'offering_services' && (
-                                <div>
-                                    <p>Wybierz typy zwierząt, którymi chcesz się opiekować:</p>
-                                    <div className={styles.animalTypeList}>
-                                        {Object.keys(ANIMAL_TYPE_MAP).map((displayName) => (
-                                            <label key={displayName}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={(formData.animal_type || []).includes(ANIMAL_TYPE_MAP[displayName])}
-                                                    onChange={() => handleAnimalTypesSelection(ANIMAL_TYPE_MAP[displayName])}
-                                                />
-                                                {displayName}
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-
 
                             <label>
                                 Nazwa:

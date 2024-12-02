@@ -17,22 +17,14 @@ const MainPage = () => {
     const [filters, setFilters] = useState({
         location: '',
         active: true,
+        animal_type: [],
+        announcement_type: '', // Nowy filtr dla rodzaju ogłoszeń
     }); // Filtry
-    const [userDetails, setUserDetails] = useState(null); 
+    const [userDetails, setUserDetails] = useState(null);
 
-    const locations = [
-        'Babimost',
-        'Wolsztyn',
-        'Wrocław',
-        'Gdańsk',
-    ];
-
-    const animals = [
-        'Kot',
-        'Pies',
-        'Inne',
-    ];
-
+    const locations = ['Babimost', 'Wolsztyn', 'Wrocław', 'Gdańsk'];
+    const animals = ['Kot', 'Pies', 'Inne'];
+    const announcementTypes = ['looking_for_sitter', 'offering_services']; // Typy ogłoszeń
 
     // Pobierz dane użytkownika
     useEffect(() => {
@@ -59,11 +51,13 @@ const MainPage = () => {
         getUserData();
     }, [supabase]);
 
+    // Ustaw filtry na podstawie szczegółów użytkownika
     useEffect(() => {
         if (userDetails) {
             setFilters((prevFilters) => ({
                 ...prevFilters,
                 location: userDetails.location || '', // Ustaw lokalizację z profilu
+                animal_type: userDetails.animal_type || [],
             }));
         }
     }, [userDetails]);
@@ -78,38 +72,40 @@ const MainPage = () => {
                 .eq('active', true) // Pobieramy tylko aktywne ogłoszenia
                 .order('added_at', { ascending: false }); // Sortujemy po dacie dodania
 
-            // Filtrowanie wg lokalizacji (jeśli podano)
+            // Filtrowanie wg lokalizacji
             if (filters.location) {
                 query = query.ilike('location', `%${filters.location}%`);
             }
 
             // Filtrowanie wg roli
-            if(selectedRole){
+            if (selectedRole) {
                 if (selectedRole === 'owner') {
                     query = query.eq('announcement_type', 'looking_for_sitter');
-                } else if (selectedRole === 'petsitter' ) {
+                } else if (selectedRole === 'petsitter') {
                     query = query.eq('announcement_type', 'offering_services');
                 }
+            }
+
+            // Filtrowanie wg rodzaju ogłoszenia
+            if (filters.announcement_type) {
+                query = query.eq('announcement_type', filters.announcement_type);
             }
 
             const { data, error } = await query;
             if (error) {
                 console.error('Błąd pobierania ogłoszeń:', error);
             } else {
-                console.log(data);
                 setAds(data);
             }
             setLoading(false);
         };
-        
-            fetchAnnouncements();
-        
-    }, [selectedRole, filters, supabase]);
 
+        fetchAnnouncements();
+    }, [selectedRole, filters, supabase]);
 
     const handleRoleChange = (role) => {
         setSelectedRole(role);
-        console.log(role);
+        console.log('Wybrana rola:', role);
     };
 
     const handleFilterChange = (e) => {
@@ -118,6 +114,18 @@ const MainPage = () => {
             ...prevFilters,
             [name]: value,
         }));
+    };
+
+    const handleAnimalFilterChange = (e, animal) => {
+        setFilters((prev) => {
+            const newAnimalType = prev.animal_type.includes(animal)
+                ? prev.animal_type.filter((a) => a !== animal)
+                : [...prev.animal_type, animal];
+            return {
+                ...prev,
+                animal_type: newAnimalType,
+            };
+        });
     };
 
     const handleLogout = async () => {
@@ -209,15 +217,48 @@ const MainPage = () => {
                                 ))}
                             </select>
                         </label>
+                        <label className={styles.filterOption}>
+                            Rodzaj zwierzęcia:
+                            <div className={styles.animalFilters}>
+                                {animals.map((animal) => (
+                                    <label key={animal} className={styles.filterOption}>
+                                        <input
+                                            type="checkbox"
+                                            name="animal_type"
+                                            value={animal}
+                                            checked={filters.animal_type.includes(animal)}
+                                            onChange={(e) => handleAnimalFilterChange(e, animal)}
+                                        />
+                                        {animal}
+                                    </label>
+                                ))}
+                            </div>
+                        </label>
+                        {/* Filtr dla rodzaju ogłoszeń */}
+                        <label className={styles.filterOption}>
+                            Rodzaj ogłoszenia:
+                            <select
+                                name="announcement_type"
+                                value={filters.announcement_type}
+                                onChange={handleFilterChange}
+                            >
+                                <option value="">Wybierz rodzaj ogłoszenia</option>
+                                {announcementTypes.map((type) => (
+                                    <option key={type} value={type}>
+                                        {type === 'looking_for_sitter' ? 'Szukam opiekuna' : 'Oferuję usługi'}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
                     </div>
                 )}
 
                 <div className={styles.ads}>
-                    <div style={{display:'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                         <h2>{userDetails ? `${userDetails.name} ogłoszenia dla Ciebie` : 'Ogłoszenia dla Ciebie'}</h2>
                         <button onClick={() => navigate('/add-announcement')}>Dodaj ogłoszenie</button>
                     </div>
-                {loading ? (
+                    {loading ? (
                         <p>Ładowanie ogłoszeń...</p>
                     ) : ads.length > 0 ? (
                         <div className={styles.adsList}>
