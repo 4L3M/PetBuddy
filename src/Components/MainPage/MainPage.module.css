@@ -29,30 +29,108 @@
     gap: 10px;
 }
 
-.roleButton {
+button {
     padding: 10px 20px;
-    text-align: center;
     background-color: #A4D5E7;
     border: none;
     border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+button:hover {
+    background-color: #7bbcd6;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+    background-color: #5fa2c1;
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.roleButton {
+    background-color: #AF81CE;
 }
 
 .roleButton:hover {
-    background-color: #e6739f;
-    color: white;
+    background-color: #995fb4;
 }
 
-.roleButton:active {
-    background-color: #e6739f;
-    color: white;
+.selectedButton {
+    background-color: #8fe660; /* Złoty kolor dla wybranego przycisku */
+    color: #000; /* Czarny tekst dla kontrastu */
+    border: 2px solid #3d612a; /* Dodanie obramowania */
 }
 
-/* Główna sekcja z układem */
+.selectedButton:hover {
+    background-color: #afed8d; /* Złoty kolor dla wybranego przycisku */
+}
+
+.animalsButton {
+    background-color: #FAC9CE;
+}
+
+.animalsButton:hover {
+    background-color: #f2a2aa;
+}
+
+.animalsButton:active {
+    background-color: #d78087;
+}
+
+.profileButton {
+    background-color: #BEEAB6;
+}
+
+.profileButton:hover {
+    background-color: #a2d49d;
+}
+
+.profileButton:active {
+    background-color: #87b782;
+}
+
+.headerButton {
+    background-color: transparent;
+}
+
+.headerButton:hover {
+    background-color: transparent;
+    text-decoration: underline;
+    text-emphasis: bold;
+}
+
+.announcementButton {
+    background-color: #A4D5E7;
+}
+
+.announcementButton:hover {
+    background-color: #89c0d1;
+}
+
+.announcementButton:active {
+    background-color: #6ea3b4;
+}
+
+.logoutButton {
+    background-color: #E6739F;
+}
+
+.logoutButton:hover {
+    background-color: #cf5b89;
+}
+
+.logoutButton:active {
+    background-color: #b14472;
+}
+
 .mainContent {
     display: flex;
-    flex-direction: row; /* Filtry po lewej, ogłoszenia po prawej */
+    flex-direction: row;
     justify-content: center;
     align-items: flex-start;
     gap: 20px;
@@ -63,7 +141,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: 25%; /* Szerokość bocznego panelu */
+    width: 25%;
     background-color: #fff;
     padding: 15px;
     border-radius: 10px;
@@ -82,9 +160,8 @@
     accent-color: #A4D5E7;
 }
 
-/* Lista ogłoszeń */
 .ads {
-    width: 75%; /* Szerokość sekcji ogłoszeń */
+    width: 75%;
 }
 
 .adsList {
@@ -103,9 +180,20 @@
     border-radius: 10px;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: calc(33% - 20px); /* Elastyczny układ kart */
+    width: calc(33% - 20px);
     max-width: 300px;
     min-width: 200px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.adCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.adCard:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
 .avatar {
@@ -117,7 +205,6 @@
     margin-bottom: 10px;
 }
 
-/* Stopka */
 .footer {
     background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
     text-align: center;
@@ -125,7 +212,6 @@
     margin-top: auto;
 }
 
-/* Responsywność */
 @media (max-width: 768px) {
     .mainPage {
         flex-direction: column;

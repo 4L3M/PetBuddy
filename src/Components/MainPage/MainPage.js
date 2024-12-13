@@ -9,6 +9,11 @@ import { GlobalContext } from '../../GlobalContext';
 const MainPage = () => {
     const { supabase } = useContext(GlobalContext);
     const navigate = useNavigate();
+    const handleAnnouncementClick = (announcement) => {
+        // Przekazujemy `id` i dane ogłoszenia do innej strony
+        navigate(`/announcement/${announcement.id}`, { state: announcement });
+      };
+
 
     const [user, setUser] = useState(null); // Dane użytkownika
     const [selectedRole, setSelectedRole] = useState(''); // Rola użytkownika
@@ -163,69 +168,66 @@ const MainPage = () => {
                     {user ? (
                         <>
                          {selectedRole === 'owner' && (
-                            <Button
+                            <button
                                 onClick={() => navigate('/animals')}
                                 variant="success"
-                                className={styles.animalsButton}
+                                className={styles.headerButton}
                             >
                                 Twoje zwierzęta
-                            </Button>
+                            </button>
                         )}
-                            <Button
+                            <button
                                 onClick={() => navigate('/profile')}
                                 variant="primary"
-                                className={styles.profileButton}
+                                className={styles.headerButton}
                             >
                                 Twój profil
-                            </Button>
-                            <Button
-                                onClick={() => navigate('/profile')}
-                                variant="primary"
-                                className={styles.profileButton}
-                            >
-                            </Button>
-                            <Button
+                            </button>
+                            
+                            <button
                                 onClick={() => navigate('/announcements')}
                                 variant="info"
-                                className={styles.announcementButton}
+                                className={styles.headerButton}
                             >
                                 Twoje ogłoszenia
-                            </Button>
-                            <Button
+                            </button>
+                            <button
                                 onClick={handleLogout}
                                 variant="danger"
                                 className={styles.logoutButton}
                             >
                                 Wyloguj się
-                            </Button>
+                            </button>
                         </>
                     ) : (
                         <div className={styles.buttonGroup}>
-                            <Button
-                                variant={selectedRole === 'petsitter' ? 'primary' : 'secondary'}
+                            <button
+                                className={`${styles.animalsButton} ${
+                                    selectedRole === 'petsitter' ? styles.selectedButton : ''
+                                }`}
                                 onClick={() => handleRoleChange('petsitter')}
-                                className={styles.roleButton}
                             >
                                 Chcę się opiekować zwierzętami
-                            </Button>
-                            <Button
-                                variant={selectedRole === 'owner' ? 'primary' : 'secondary'}
+                            </button>
+                            <button
+                                 className={`${styles.roleButton} ${
+                                    selectedRole === 'owner' ? styles.selectedButton : ''
+                                }`}
                                 onClick={() => handleRoleChange('owner')}
-                                className={styles.roleButton}
                             >
                                 Szukam opieki dla swojego zwierzęcia
-                            </Button>
+                            </button>
                         </div>
                     )}
                 </div>
                 {!user && (
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Button onClick={() => navigate('/login')} variant="primary">
+                        <button onClick={() => navigate('/login')} variant="primary">
                             Zaloguj się
-                        </Button>
-                        <Button onClick={() => navigate('/register')} variant="success">
+                        </button>
+                        <button onClick={() => navigate('/register')} variant="success">
                             Zarejestruj się
-                        </Button>
+                        </button>
                     </div>
                 )}
             </header>
@@ -268,7 +270,7 @@ const MainPage = () => {
                         </label> */}
                         {/* Filtr dla rodzaju ogłoszeń */}
                         <label className={styles.filterOption}>
-                            Rodzaj ogłoszenia:
+                            Czego potrzebujesz?
                             <select
                                 name="announcement_type"
                                 value={filters.announcement_type}
@@ -277,7 +279,7 @@ const MainPage = () => {
                                 <option value="">Wybierz rodzaj ogłoszenia</option>
                                 {announcementTypes.map((type) => (
                                     <option key={type} value={type}>
-                                        {type === 'looking_for_sitter' ? 'Szukam opiekuna' : 'Oferuję usługi'}
+                                        {type === 'looking_for_sitter' ? 'Zaopiekuję się' : 'Szukam opiekuna'}
                                     </option>
                                 ))}
                             </select>
@@ -290,7 +292,10 @@ const MainPage = () => {
                     <h2>
                         {userDetails ? `${userDetails.name} ogłoszenia dla Ciebie` : 'Ogłoszenia dla Ciebie'}
                     </h2>
-                    <button onClick={() => navigate('/add-announcement')}>
+                    <button 
+                        onClick={() => navigate('/add-announcement')}
+                        disabled={!userDetails}
+                    >
                         {userDetails ? 'Dodaj ogłoszenie' : 'Zaloguj się, aby dodać ogłoszenie'}
                     </button>
                 </div>
@@ -299,12 +304,16 @@ const MainPage = () => {
                     ) : ads.length > 0 ? (
                         <div className={styles.adsList}>
                             {ads.map((ad) => (
-                                <div key={ad.announcement_id} className={styles.adCard}>
-                                    <h3>{ad.name}</h3>
-                                    <p>Zwierzę: {ad.animal_type}</p>
-                                    <p>{ad.text}</p>
-                                    <p>Lokalizacja: {ad.location}</p>
-                                    <p>Dodano: {new Date(ad.added_at).toLocaleDateString()}</p>
+                                <div 
+                                    key={ad.announcement_id} 
+                                    className={styles.adCard}
+                                    onClick={() => navigate(`/ad/${ad.announcement_id}`, { state: ad })}
+                                    >
+                                        <h3>{ad.name}</h3>
+                                        <p>Zwierzę: {ad.animal_type}</p>
+                                        <p>{ad.text}</p>
+                                        <p>Lokalizacja: {ad.location}</p>
+                                        <p>Dodano: {new Date(ad.added_at).toLocaleDateString()}</p>
                                     
                                 </div>
                             ))}

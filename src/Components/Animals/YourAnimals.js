@@ -3,6 +3,9 @@ import { Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../GlobalContext';
 import styles from './YourAnimals.module.css';
+import logo from '../Assets/logo.png';
+
+
 
 const YourAnimals = () => {
     const { supabase } = useContext(GlobalContext);
@@ -70,8 +73,44 @@ const YourAnimals = () => {
     }
 
     return (
+        <div className={styles.page}>
+                    <header className={styles.header}>
+                <img src={logo} className={styles.logo} alt="logo" />
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <button
+                                onClick={() => navigate('/animals')}
+                                variant="success"
+                                className={styles.headerButton}
+                            >
+                                Twoje zwierzęta
+                            </button>
+                    
+                            <button
+                                onClick={() => navigate('/profile')}
+                                variant="primary"
+                                className={styles.headerButton}
+                            >
+                                Twój profil
+                            </button>
+                            
+                            <button
+                                onClick={() => navigate('/announcements')}
+                                variant="info"
+                                className={styles.headerButton}
+                            >
+                                Twoje ogłoszenia
+                            </button>
+                            <button
+                                onClick={() => navigate('/')}
+                                className={styles.logoutButton}
+                            >
+                                Strona główna
+                            </button>
+                </div>
+            
+            </header>
         <div className={styles.container}>
-            <h2>Twoje zwierzeta</h2>
+           
             {animals.length === 0 ? (
                 <p>Nie masz jeszcze żadnych zwierząt.</p>
             ) : (
@@ -101,6 +140,7 @@ const YourAnimals = () => {
                 </div>
             )}
             <Button variant="success" onClick={() => navigate('/add-announcement')}>Dodaj nowe zwierzę</Button>
+        </div>
         </div>
     );
 };

@@ -156,6 +156,7 @@ const Profile = () => {
         <div className={styles.inputGroup}>
           <label htmlFor="location">Lokalizacja</label>
           <select
+            className={styles.profile}
             id="location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}

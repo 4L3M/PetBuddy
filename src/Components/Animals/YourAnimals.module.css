@@ -23,81 +23,31 @@
     margin-right: 10px;
 }
 
-.buttonGroup {
+.container {
     display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-}
-
-.roleButton {
-    padding: 10px 20px;
-    text-align: center;
-    background-color: #A4D5E7;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.roleButton:hover {
-    background-color: #e6739f;
-    color: white;
-}
-
-.roleButton:active {
-    background-color: #e6739f;
-    color: white;
-}
-
-/* Główna sekcja z układem */
-.mainContent {
-    display: flex;
-    flex-direction: row; /* Filtry po lewej, ogłoszenia po prawej */
+    flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 5%;
-
-}
-
-.sideFilters {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 25%; /* Szerokość bocznego panelu */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.filterOption {
-    display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.filterOption input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #A4D5E7;
-}
-
-/* Lista ogłoszeń */
-.ads {
-    width: 75%; /* Szerokość sekcji ogłoszeń */
-    background-color: #fff;
     padding: 5%;
-    border-radius: 10px;
+    gap: 20px;
 }
 
-.newAdd {
+h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.announcementsList {
     display: flex;
-    flex-direction: column;
-
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
 }
 
-.adCard {
+.card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -107,44 +57,59 @@
     border-radius: 10px;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: calc(33% - 20px); /* Elastyczny układ kart */
+    width: calc(33% - 20px);
     max-width: 300px;
     min-width: 200px;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.avatar {
-    width: 100px;
-    height: 100px;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.headerButton {
+    padding: 10px 20px;
+    background-color: transparent;
+    border: none;
     border-radius: 5px;
-    border: 2px solid #cce7f0;
-    object-fit: cover;
-    margin-bottom: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
-/* Stopka */
-.footer {
-    background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
-    text-align: center;
-    padding: 10px;
-    margin-top: auto;
+.headerButton:hover {
+    background-color: transparent;
+    text-emphasis: bold;
+    text-decoration: underline;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsywność */
+.headerButton:active {
+    background-color: #5fa2c1;
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button.ms-2 {
+    margin-left: 10px;
+}
+
 @media (max-width: 768px) {
-    .mainPage {
+    .announcementsList {
         flex-direction: column;
+        align-items: center;
     }
 
-    .sideFilters {
+    .card {
         width: 100%;
-        margin-bottom: 20px;
-    }
-
-    .ads {
-        width: 100%;
-    }
-
-    .adCard {
-        width: 100%;
+        max-width: none;
     }
 }

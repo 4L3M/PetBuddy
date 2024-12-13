@@ -1,10 +1,15 @@
+/* Stylizacja całej strony */
 .page {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     background-color: #f3f2e9;
 }
 
+/* Nagłówek strony */
 .header {
     background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
     padding: 10px;
@@ -17,109 +22,161 @@
 }
 
 .logo {
-    width: 80px;
+     width: 80px;
     height: 80px;
     margin-left: 10px;
     margin-right: 10px;
 }
 
-.buttonGroup {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+.logoutButton {
+    font-size: 16px;
+    font-weight: bold;
 }
 
-.roleButton {
-    padding: 10px 20px;
-    text-align: center;
-    background-color: #A4D5E7;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.roleButton:hover {
-    background-color: #e6739f;
-    color: white;
-}
-
-.roleButton:active {
-    background-color: #e6739f;
-    color: white;
-}
-
-/* Główna sekcja z układem */
+/* Główna treść */
 .mainContent {
-    display: flex;
-    flex-direction: row; /* Filtry po lewej, ogłoszenia po prawej */
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 5%;
-
-}
-
-.sideFilters {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 25%; /* Szerokość bocznego panelu */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 10px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.filterOption {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.filterOption input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #A4D5E7;
-}
-
-/* Lista ogłoszeń */
-.ads {
-    width: 75%; /* Szerokość sekcji ogłoszeń */
-    background-color: #fff;
-    padding: 5%;
-    border-radius: 10px;
-}
-
+/* Formularz dodawania ogłoszenia */
 .newAdd {
     display: flex;
     flex-direction: column;
-
+    gap: 20px;
 }
 
-.adCard {
+.newAdd label {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    background: white;
-    border: 1px solid #AF81CE;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: calc(33% - 20px); /* Elastyczny układ kart */
-    max-width: 300px;
-    min-width: 200px;
-}
-
-.avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 5px;
-    border: 2px solid #cce7f0;
-    object-fit: cover;
+    font-size: 16px;
     margin-bottom: 10px;
 }
+
+input[type="checkbox" i] {
+    color: #9900ff;
+}
+
+.newAdd input[type="text"],
+.newAdd input[type="datetime-local"],
+.newAdd select,
+.newAdd textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Stylizacja textarea */
+.newAdd textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Fokus na elementy formularza */
+.newAdd input:focus,
+.newAdd select:focus,
+.newAdd textarea:focus {
+    border-color: #A4D5E7;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+/* Przyciski w grupach */
+.buttonGroup {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.typeButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    background-color: #ddd;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.typeButton.active {
+    background-color: #A4D5E7;
+    color: white;
+    transform: scale(1.05);
+    border: 1px solid #9900ff;
+}
+
+.typeButton:hover {
+    background-color: #3fbae7;
+    color: white;
+}
+
+/* Lista zwierząt */
+.animalList,
+.animalTypeList {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.animalList label,
+.animalTypeList label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: transparent;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.animalList label:hover,
+.animalTypeList label:hover {
+    background-color: transparent;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+.newAdd select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd; /* Zielona ramka */
+    border-radius: 5px;
+    background-color: #fff; /* Jasne tło */
+    color: #333; /* Kolor tekstu */
+    appearance: none; /* Usunięcie strzałki systemowej */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23004d40" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5H3z"/></svg>'); 
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.newAdd select:hover {
+    border-color: #00796b; /* Jasniejszy zielony na hover */
+}
+
+.newAdd select:focus {
+    border-color: #00796b; /* Jaśniejszy zielony na fokus */
+    box-shadow: 0 0 5px rgba(0, 121, 107, 0.5);
+    outline: none;
+}
+
+.newAdd option:hover {
+    background-color: #A4D5E7;
+}
+
+.new
 
 /* Stopka */
 .footer {
@@ -127,24 +184,4 @@
     text-align: center;
     padding: 10px;
     margin-top: auto;
-}
-
-/* Responsywność */
-@media (max-width: 768px) {
-    .mainPage {
-        flex-direction: column;
-    }
-
-    .sideFilters {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-
-    .ads {
-        width: 100%;
-    }
-
-    .adCard {
-        width: 100%;
-    }
 }
