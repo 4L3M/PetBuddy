@@ -27,7 +27,7 @@ const AddAnnouncement = () => {
         location: '',
         added_at: '',
         active: true,
-        animal_id: '', // Inicjalizacja tablicy dla ID zwierząt
+        animal_id: null, // Inicjalizacja tablicy dla ID zwierząt
         owner_id: user?.id,
         animal_type: '',
     });

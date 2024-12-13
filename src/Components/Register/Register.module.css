@@ -202,7 +202,7 @@
 }
 
 .roleButtons {
-  display: grid; /* Użycie grid layout dla precyzyjnego rozmieszczenia */
+  display: flex; /* Użycie grid layout dla precyzyjnego rozmieszczenia */
   grid-template-columns: repeat(2, 1fr); /* Dwa przyciski w jednym rzędzie */
   grid-template-rows: auto auto; /* Dwie linie */
   justify-items: center; /* Wyśrodkowanie poziome */

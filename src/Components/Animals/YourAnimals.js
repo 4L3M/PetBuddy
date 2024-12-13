@@ -2,13 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../GlobalContext';
-import styles from './UserAnnouncements.module.css';
+import styles from './YourAnimals.module.css';
 
-const UserAnnouncements = () => {
+const YourAnimals = () => {
     const { supabase } = useContext(GlobalContext);
     const navigate = useNavigate();
     const [user, setUser] = useState(null); // Dane użytkownika
-    const [announcements, setAnnouncements] = useState([]); // Ogłoszenia użytkownika
+    const [animals, setAnimals] = useState([]); // Ogłoszenia użytkownika
     const [loading, setLoading] = useState(true); // Status ładowania
 
     // Pobierz dane użytkownika po zalogowaniu
@@ -25,70 +25,73 @@ const UserAnnouncements = () => {
         fetchUserData();
     }, [supabase]);
     
-    // Pobierz ogłoszenia powiązane z użytkownikiem
+    // Pobierz zwierzęta powiązane z użytkownikiem
     useEffect(() => {
-        const fetchUserAnnouncements = async () => {
+        const fetchUserAnimals = async () => {
             if (!user) return;
             setLoading(true);
             const { data, error } = await supabase
-                .from('announcement')
-                .select('*')
-                .eq('owner_id', user?.id) // Pobierz ogłoszenia dla aktualnego użytkownika
-                .order('added_at', { ascending: false }); // Posortuj wg daty dodania
+                .from('animals')
+                .select('*') // Pobierz ogłoszenia dla aktualnego użytkownika
+                .order('age', { ascending: false }); // Posortuj wg daty dodania
             if (error) {
                 console.error('Błąd pobierania ogłoszeń:', error);
             } else {
-                setAnnouncements(data);
+                setAnimals(data);
+                
+            console.log(data)
             }
             setLoading(false);
+            console.log(data)
         };
-        fetchUserAnnouncements();
+        fetchUserAnimals();
     }, [user, supabase]);
 
     // Funkcja do usuwania ogłoszenia
-    const handleDeleteAnnouncement = async (announcementId) => {
+    const handleDeleteAnnouncement = async (animalID) => {
         const { error } = await supabase
-            .from('announcement')
+            .from('animal')
             .delete()
-            .eq('announcement_id', announcementId); // Usuń ogłoszenie po ID
+            .eq('animal_id', animalID); // Usuń ogłoszenie po ID
         if (error) {
-            console.error('Błąd usuwania ogłoszenia:', error);
+            console.error('Błąd usuwania zwierzecia:', error);
         } else {
-            setAnnouncements((prev) => prev.filter((ad) => ad.announcement_id !== announcementId)); // Usuwanie z listy w stanie
+            setAnimals((prev) => prev.filter((animal) => animal.animalID !== animalID)); // Usuwanie z listy w stanie
         }
     };
 
     // Funkcja do edycji ogłoszenia
-    const handleEditAnnouncement = (announcementId) => {
-        navigate(`/edit-announcement/${announcementId}`); // Przekierowanie do strony edycji ogłoszenia
+    const handleEditAnnouncement = (animalID) => {
+        navigate(`/edit-animal/${animalID}`); // Przekierowanie do strony edycji ogłoszenia
     };
 
     if (loading) {
-        return <div>Ładowanie ogłoszeń...</div>;
+        return <div>Ładowanie zwierząt...</div>;
     }
 
     return (
         <div className={styles.container}>
-            <h2>Twoje ogłoszenia</h2>
-            {announcements.length === 0 ? (
-                <p>Nie masz jeszcze żadnych ogłoszeń.</p>
+            <h2>Twoje zwierzeta</h2>
+            {animals.length === 0 ? (
+                <p>Nie masz jeszcze żadnych zwierząt.</p>
             ) : (
                 <div className={styles.announcementsList}>
-                    {announcements.map((announcement) => (
-                        <Card key={announcement.announcement_id} className={styles.card}>
+                    {animals.map((animal) => (
+                        <Card key={animal.animal_id} className={styles.card}>
                             <Card.Body>
-                                <Card.Title>{announcement.name}</Card.Title>
-                                <Card.Text>{announcement.text}</Card.Text>
-                                <Card.Text><strong>Lokalizacja:</strong> {announcement.location}</Card.Text>
-                                <Card.Text><strong>Dodano:</strong> {new Date(announcement.added_at).toLocaleDateString()}</Card.Text>
+                                <Card.Title>{animal.name}</Card.Title>
+                                <Card.Text>{animal.text}</Card.Text>
+                                <Card.Text>{animal.info}</Card.Text>
+                                {/* <Card.Text><strong>Lokalizacja:</strong> {user.location}</Card.Text>
+                                <Card.Text><strong>Dodano:</strong> {new Date(animal.added_at).toLocaleDateString()}</Card.Text> */}
                                 <Button 
                                     variant="primary" 
-                                    onClick={() => handleEditAnnouncement(announcement.announcement_id)}>
+                                    onClick={() => handleEditAnnouncement(animal.animal_id)}>
                                     Edytuj
                                 </Button>
                                 <Button 
                                     variant="danger" 
-                                    onClick={() => handleDeleteAnnouncement(announcement.announcement_id)} 
+                                    onClick={() => handleDeleteAnnouncement(animal.animal_id)} 
                                     className="ms-2">
                                     Usuń
                                 </Button>
@@ -97,9 +100,9 @@ const UserAnnouncements = () => {
                     ))}
                 </div>
             )}
-            <Button variant="success" onClick={() => navigate('/add-announcement')}>Dodaj nowe ogłoszenie</Button>
+            <Button variant="success" onClick={() => navigate('/add-announcement')}>Dodaj nowe zwierzę</Button>
         </div>
     );
 };
 
-export default UserAnnouncements;
+export default YourAnimals;

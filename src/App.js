@@ -7,6 +7,9 @@ import MainPage from './Components/MainPage/MainPage';
 import Profile from './Components/Profile/Profile';
 import AddAnnouncement from './Components/AddAnnouncement/AddAnnouncement';
 import UserAnnouncements from './Components/Announcements/UserAnnouncements';
+import EditAnnouncement from './Components/Announcements/EditAnnouncement';
+import YourAnimals from './Components/Animals/YourAnimals';
+import AddAnimal from './Components/Animals/AddAnimal';
 
 import { GlobalProvider } from './GlobalContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -23,6 +26,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/add-announcement" element={<AddAnnouncement />} />
           <Route path="/announcements" element={<UserAnnouncements />} />
+          <Route path="/edit-announcement/:id" element={<EditAnnouncement />} />
+          <Route path='/animals' element={<YourAnimals />} />
+          <Route path='/add-animal' element={<AddAnimal />} />
         </Routes>
       </BrowserRouter>
     </GlobalProvider>

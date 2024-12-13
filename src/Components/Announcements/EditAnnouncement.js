@@ -1,15 +1,17 @@
-import styles from './AddAnnouncement.module.css';
+import styles from './EditAnnouncement.module.css';
 import { React, useState, useEffect, useContext } from 'react';
 import logo from '../Assets/logo.png';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { GlobalContext } from '../../GlobalContext';
 
-const AddAnnouncement = () => {
+const EditAnnouncement = () => {
     const { supabase } = useContext(GlobalContext);
     const navigate = useNavigate();
 
+    const { id } = useParams(); // Pobieranie id z URL
    // const getFiltersForRole = (role) => (role === 'sitter' ? sitterFilters : ownerFilters);
     
     const [user, setUser] = useState(null);
@@ -18,6 +20,7 @@ const AddAnnouncement = () => {
     const [adsForRole, setAdsForRole] = useState([]);
     const [userAnimals, setUserAnimals] = useState([]);
     const [adType, setAdType] = useState('');
+
 
 
     const [formData, setFormData] = useState({
@@ -38,20 +41,18 @@ const AddAnnouncement = () => {
     
             if (userData) {
                 // Pobierz dane z tabeli 'user_details' na podstawie userData.id
-                const { data: userDetails, error } = await supabase
-                    .from('users_details')
-                    .select('*') // Wybieramy tylko 'name'
-                    .eq('user_id', userData.user?.id) // Łączenie z użytkownikiem po ID
-                    .single(); // Zakładamy, że jest tylko jedno dopasowanie
+                let { data: announcement, error } = await supabase
+                    .from('announcement')
+                    .select('*')
+                    .eq('announcement_id', id)
+                    .single()
+                    
+                    
     
                 if (error) {
                     console.error('Błąd pobierania danych użytkownika:', error);
                 } else {
-                    // Dodaj imię do danych użytkownika
-                    setUser((prevUser) => ({
-                        ...prevUser,
-                        name: userDetails ? userDetails.name : 'Nieznane', // Jeśli brak imienia, przypisujemy domyślną wartość
-                    }));
+                    setFormData(announcement);
                 }
     
                // setSelectedRole(userData.role);
@@ -122,7 +123,7 @@ const AddAnnouncement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { error } = await supabase.from('announcement').insert([formData]);
+        const { error } = await supabase.from('announcement').update([formData]).eq('announcement_id', id);
         if (error) {
             console.error('Błąd dodawania ogłoszenia:', error);
         } else {
@@ -228,7 +229,7 @@ const AddAnnouncement = () => {
                             
                             
                             <Button type="submit" variant="success">
-                                Dodaj ogłoszenie
+                                Aktualizuj ogłoszenie
                             </Button>
                         </form>
                 </div>
@@ -240,4 +241,4 @@ const AddAnnouncement = () => {
     );
 };
 
-export default AddAnnouncement;
+export default EditAnnouncement;
