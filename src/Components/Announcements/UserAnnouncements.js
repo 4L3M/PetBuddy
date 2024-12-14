@@ -68,36 +68,55 @@ const UserAnnouncements = () => {
     }
 
     return (
-        <div className={styles.container}>
-            <h2>Twoje ogłoszenia</h2>
-            {announcements.length === 0 ? (
-                <p>Nie masz jeszcze żadnych ogłoszeń.</p>
-            ) : (
-                <div className={styles.announcementsList}>
-                    {announcements.map((announcement) => (
-                        <Card key={announcement.announcement_id} className={styles.card}>
-                            <Card.Body>
-                                <Card.Title>{announcement.name}</Card.Title>
-                                <Card.Text>{announcement.text}</Card.Text>
-                                <Card.Text><strong>Lokalizacja:</strong> {announcement.location}</Card.Text>
-                                <Card.Text><strong>Dodano:</strong> {new Date(announcement.added_at).toLocaleDateString()}</Card.Text>
-                                <Button 
-                                    variant="primary" 
-                                    onClick={() => handleEditAnnouncement(announcement.announcement_id)}>
-                                    Edytuj
-                                </Button>
-                                <Button 
-                                    variant="danger" 
-                                    onClick={() => handleDeleteAnnouncement(announcement.announcement_id)} 
-                                    className="ms-2">
-                                    Usuń
-                                </Button>
-                            </Card.Body>
-                        </Card>
-                    ))}
-                </div>
-            )}
-            <Button variant="success" onClick={() => navigate('/add-announcement')}>Dodaj nowe ogłoszenie</Button>
+        <div className={styles.page}>
+            <div className={styles.header}>
+                <h1>Twoje ogłoszenia</h1>
+                <button 
+                    className={styles.backButton} 
+                    onClick={() => navigate('/')}>
+                    Powrót do strony głównej
+                </button>
+            </div>
+            <div className={styles.container}>
+                {announcements.length === 0 ? (
+                    <p>Nie masz jeszcze żadnych ogłoszeń.</p>
+                ) : (
+                    <div className={styles.announcementsList}>
+                        {announcements.map((announcement) => (
+                            <Card key={announcement.announcement_id} 
+                                className={styles.card}>
+                                <Card.Body>
+                                    <Card.Title>{announcement.name}</Card.Title>
+                                    <Card.Text>{announcement.text}</Card.Text>
+                                    <Card.Text><strong>Lokalizacja:</strong> {announcement.location}</Card.Text>
+                                    <Card.Text><strong>Dodano:</strong> {new Date(announcement.added_at).toLocaleDateString()}</Card.Text>
+                                    <button 
+                                        variant="primary" 
+                                        onClick={() => handleEditAnnouncement(announcement.announcement_id)}>
+                                        Edytuj
+                                    </button>
+                                    <button 
+                                        variant="danger" 
+                                        onClick={() => handleDeleteAnnouncement(announcement.announcement_id)} 
+                                        className="ms-2">
+                                        Usuń
+                                    </button>
+                                </Card.Body>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+                <button 
+                    variant="success" 
+                    onClick={() => navigate('/add-announcement')}
+                    style={{ width: 'fit-content' }}
+                    >
+                        Dodaj nowe ogłoszenie
+                </button>
+            </div>
+            <footer className={styles.footer}>
+                Amelia &copy
+            </footer>
         </div>
     );
 };

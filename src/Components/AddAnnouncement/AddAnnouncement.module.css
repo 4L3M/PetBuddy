@@ -2,7 +2,6 @@
 .page {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;

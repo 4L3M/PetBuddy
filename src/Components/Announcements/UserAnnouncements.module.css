@@ -1,3 +1,4 @@
+/* Global styles */
 .page {
     display: flex;
     flex-direction: column;
@@ -7,11 +8,8 @@
 
 .header {
     background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
-    padding: 10px;
-    padding-left: 5%;
-    padding-right: 5%;
+    padding: 10px 5%;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
@@ -19,19 +17,16 @@
 .logo {
     width: 80px;
     height: 80px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 0 10px;
 }
 
 .buttonGroup {
     display: flex;
-    flex-direction: row;
     justify-content: space-evenly;
 }
 
 .roleButton {
     padding: 10px 20px;
-    text-align: center;
     background-color: #A4D5E7;
     border: none;
     border-radius: 5px;
@@ -39,65 +34,38 @@
     transition: background-color 0.3s, color 0.3s;
 }
 
-.roleButton:hover {
+.roleButton:hover, .roleButton:active {
     background-color: #e6739f;
     color: white;
 }
 
-.roleButton:active {
-    background-color: #e6739f;
-    color: white;
-}
-
-/* Główna sekcja z układem */
+/* Main content */
 .mainContent {
     display: flex;
-    flex-direction: row; /* Filtry po lewej, ogłoszenia po prawej */
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
     gap: 20px;
     padding: 5%;
-
-}
-
-.sideFilters {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 25%; /* Szerokość bocznego panelu */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.filterOption {
-    display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
 }
 
-.filterOption input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #A4D5E7;
-}
-
-/* Lista ogłoszeń */
-.ads {
-    width: 75%; /* Szerokość sekcji ogłoszeń */
-    background-color: #fff;
-    padding: 5%;
-    border-radius: 10px;
-}
-
-.newAdd {
+.container {
     display: flex;
     flex-direction: column;
-
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
-.adCard {
+.announcementsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -107,21 +75,82 @@
     border-radius: 10px;
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: calc(33% - 20px); /* Elastyczny układ kart */
-    max-width: 300px;
-    min-width: 200px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-.avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 5px;
-    border: 2px solid #cce7f0;
-    object-fit: cover;
+.card button {
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.card .card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    font-size: 1.5rem;  /* Larger size for title */
+    font-weight: bold;
+    color: #3b3b3b;  /* Dark color for better readability */
     margin-bottom: 10px;
 }
 
-/* Stopka */
+.card .card-text {
+    margin-top: 10px;
+    font-size: 1rem;  /* Standard size for text */
+    color: #4f4f4f;  /* Slightly lighter text color */
+    line-height: 1.5;  /* Improve line spacing */
+    margin-bottom: 10px;
+}
+
+.card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card .card-text strong {
+    font-weight: bold;
+    color: #2c2c2c;  /* Make the labels stand out */
+}
+
+.card .card-text + .card-text {
+    margin-top: 5px;  /* Space between paragraphs */
+}
+
+button {
+    margin-top: 10px;
+}
+
+.button {
+    border-radius: 5px;
+}
+
+/* Add new announcement button */
+.addNewButton {
+    background-color: #A4D5E7;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+.addNewButton:hover {
+    background-color: #e6739f;
+}
+
+/* Loading text */
+.loadingText {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 20px;
+}
+
+/* Footer */
 .footer {
     background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
     text-align: center;
@@ -129,22 +158,21 @@
     margin-top: auto;
 }
 
-/* Responsywność */
+/* Responsiveness */
 @media (max-width: 768px) {
-    .mainPage {
-        flex-direction: column;
+    .mainContent {
+        padding: 5%;
     }
 
-    .sideFilters {
+    .announcementsList {
+        gap: 15px;
+    }
+
+    .card {
         width: 100%;
-        margin-bottom: 20px;
     }
 
-    .ads {
-        width: 100%;
-    }
-
-    .adCard {
+    .addNewButton {
         width: 100%;
     }
 }

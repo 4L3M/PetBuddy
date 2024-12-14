@@ -50,44 +50,28 @@
     flex-grow: 1;
 }
 
-.ads {
+.editForm {
     width: 100%;
-    max-width: 800px;
+    max-width: 600px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
     padding: 30px;
-}
-
-.ads button {
-    margin-top: 20px;
-    margin: 10px;
-}
-
-.ads h2 {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-/* Formularz dodawania */
-.newAdd {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.newAdd label {
+.editForm label {
     font-size: 1rem;
     color: #555;
     margin-bottom: 5px;
     display: block;
 }
 
-.newAdd input,
-.newAdd select,
-.newAdd textarea {
+.editForm input,
+.editForm select,
+.editForm textarea {
     width: 100%;
     padding: 10px;
     font-size: 1rem;
@@ -96,22 +80,20 @@
     transition: border-color 0.3s ease;
 }
 
-.newAdd input:focus,
-.newAdd select:focus,
-.newAdd textarea:focus {
+.editForm input:focus,
+.editForm select:focus,
+.editForm textarea:focus {
     outline: none;
     border-color: #A4D5E7;
     box-shadow: 0 0 5px rgba(164, 213, 231, 0.5);
 }
 
-textarea {
+.editForm textarea {
     resize: vertical;
     min-height: 100px;
 }
 
-/* Przyciski */
-button[type="submit"],
-.logoutButton {
+.editForm button[type="submit"] {
     background-color: #A4D5E7;
     color: #ffffff;
     border: none;
@@ -122,14 +104,16 @@ button[type="submit"],
     transition: background-color 0.3s ease;
 }
 
-.typeButton {
-    margin: 10px;
-    cursor: pointer;
+.editForm button[type="submit"]:hover {
+    background-color: #8cc7db;
 }
 
-button[type="submit"]:hover,
-.logoutButton:hover {
-    background-color: #8cc7db;
+/* Stylizacja komunikatów */
+.error {
+    color: #e74c3c;
+    font-size: 1rem;
+    text-align: center;
+    margin: 10px 0;
 }
 
 /* Stopka */
@@ -153,18 +137,18 @@ button[type="submit"]:hover,
         padding: 20px;
     }
 
-    .ads {
+    .editForm {
         padding: 20px;
     }
 
-    .newAdd input,
-    .newAdd select,
-    .newAdd textarea {
+    .editForm input,
+    .editForm select,
+    .editForm textarea {
         font-size: 0.9rem;
         padding: 8px;
     }
 
-    button[type="submit"],
+    .editForm button[type="submit"],
     .logoutButton {
         font-size: 0.9rem;
         padding: 8px 16px;

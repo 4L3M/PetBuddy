@@ -139,7 +139,9 @@ const YourAnimals = () => {
                     ))}
                 </div>
             )}
-            <Button variant="success" onClick={() => navigate('/add-announcement')}>Dodaj nowe zwierzę</Button>
+            <Button 
+                variant="success" 
+                onClick={() => navigate('/add-animal')}>Dodaj nowe zwierzę</Button>
         </div>
         </div>
     );

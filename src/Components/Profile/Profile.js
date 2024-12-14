@@ -119,7 +119,7 @@ const Profile = () => {
           Powrót do strony głównej
         </button>
       </header>
-
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
       <form className={styles.profileForm} onSubmit={handleUpdateProfile}>
         <div className={styles.inputGroup}>
           <label htmlFor="name">Imię</label>
@@ -213,6 +213,7 @@ const Profile = () => {
           Zapisz zmiany
         </button>
       </form>
+      </div>
 
       <footer className={styles.footer}>
         <p>&copy; Amelia</p>

@@ -1,244 +1,229 @@
+import React, { useContext, useEffect, useState } from 'react';
 import styles from './EditAnnouncement.module.css';
-import { React, useState, useEffect, useContext } from 'react';
 import logo from '../Assets/logo.png';
 import { Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
-
+import { useNavigate, useParams } from 'react-router-dom';
 import { GlobalContext } from '../../GlobalContext';
 
 const EditAnnouncement = () => {
-    const { supabase } = useContext(GlobalContext);
-    const navigate = useNavigate();
+  const { supabase } = useContext(GlobalContext);
+  const navigate = useNavigate();
+  const { id } = useParams(); // Pobieranie ID ogłoszenia z URL
 
-    const { id } = useParams(); // Pobieranie id z URL
-   // const getFiltersForRole = (role) => (role === 'sitter' ? sitterFilters : ownerFilters);
-    
-    const [user, setUser] = useState(null);
-    const [selectedRole, setSelectedRole] = useState('');
-    const [selectedFilters, setSelectedFilters] = useState([]);
-    const [adsForRole, setAdsForRole] = useState([]);
-    const [userAnimals, setUserAnimals] = useState([]);
-    const [adType, setAdType] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    text: '',
+    announcement_type: '',
+    location: '',
+    added_at: '',
+    active: true,
+    animal_ids: [],
+    owner_id: '',
+  });
+  const [userAnimals, setUserAnimals] = useState([]); // Lista zwierząt użytkownika
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
 
+        // Pobierz dane ogłoszenia
+        const { data: announcement, error: announcementError } = await supabase
+          .from('announcement')
+          .select('*')
+          .eq('announcement_id', id)
+          .single();
 
-    const [formData, setFormData] = useState({
-        name: '',
-        text: '',
-        announcement_type: '',
-        location: '',
-        added_at: '',
-        active: true,
-        animal_ids: [], // Inicjalizacja tablicy dla ID zwierząt
-        owner_id: user?.id,
-    });
+        if (announcementError) throw announcementError;
+        setFormData(announcement);
 
-    useEffect(() => {
-        const getUserData = async () => {
-            const { data: userData } = await supabase.auth.getUser(); // Pobieranie danych użytkownika z Supabase Auth
-            setUser(userData);
-    
-            if (userData) {
-                // Pobierz dane z tabeli 'user_details' na podstawie userData.id
-                let { data: announcement, error } = await supabase
-                    .from('announcement')
-                    .select('*')
-                    .eq('announcement_id', id)
-                    .single()
-                    
-                    
-    
-                if (error) {
-                    console.error('Błąd pobierania danych użytkownika:', error);
-                } else {
-                    setFormData(announcement);
-                }
-    
-               // setSelectedRole(userData.role);
-              //  setSelectedFilters(getFiltersForRole(userData.role));
-            }
-        };
-    
-        getUserData();
-    }, [supabase]);
+        // Pobierz dane użytkownika
+        const { data: session } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
 
-    useEffect(() => {
-        const fetchUserAnimals = async () => {
-            const { data: userData } = await supabase.auth.getUser();
-    
-            if (userData) {
-                const { data: animals, error } = await supabase
-                    .from('animals')
-                    .select('animal_id, name') 
-                    .eq('owner_id', userData.user.id);
-    
-                if (error) {
-                    console.error('Błąd pobierania zwierząt:', error);
-                } else {
-                    console.log('Pobrane zwierzęta:', animals);
-                    setUserAnimals(animals || []);
-                }
-    
-                setFormData((prevData) => ({
-                    ...prevData,
-                    owner_id: userData.user.id,
-                }));
-            }
-        };
-    
-        fetchUserAnimals();
-    }, [supabase]);
+        if (userId) {
+          // Pobierz zwierzęta należące do użytkownika
+          const { data: animals, error: animalsError } = await supabase
+            .from('animals')
+            .select('animal_id, name')
+            .eq('owner_id', userId);
 
-    const handleAnimalSelection = (animalId) => {
-        console.log('Wybrano zwierzę:', animalId);
-        console.log('Aktualne animal_ids:', formData.animal_ids);
+          if (animalsError) throw animalsError;
+          setUserAnimals(animals || []);
 
-        setFormData((prevData) => {
-            const isSelected = prevData.animal_ids.includes(animalId);
-            if (isSelected) {
-                // Usuń ID zwierzęcia, jeśli było już wybrane
-                return {
-                    ...prevData,
-                    animal_ids: prevData.animal_ids.filter((id) => id !== animalId),
-                };
-            } else {
-                // Dodaj ID zwierzęcia, jeśli jeszcze nie było wybrane
-                return {
-                    ...prevData,
-                    animal_ids: [...prevData.animal_ids, animalId],
-                };
-            }
-        });
-    };
-    
-
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const { error } = await supabase.from('announcement').update([formData]).eq('announcement_id', id);
-        if (error) {
-            console.error('Błąd dodawania ogłoszenia:', error);
-        } else {
-            console.log('Ogłoszenie zostało dodane pomyślnie');
-            navigate('/'); // Powrót na stronę główną
+          // Ustaw owner_id w formularzu
+          setFormData((prevData) => ({ ...prevData, owner_id: userId }));
         }
+      } catch (err) {
+        console.error('Błąd podczas pobierania danych:', err);
+        setError('Nie udało się załadować danych.');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    return (
-        <div className={styles.page}>
-            <header className={styles.header}>
-                <img src={logo} className={styles.logo} alt="logo" />
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Button variant="danger" className={styles.logoutButton}>
-                            Strona główna
-                        </Button>
-                </div>
-            </header>
+    fetchData();
+  }, [id, supabase]);
 
-            <div className={styles.mainContent}>
-                <div className={styles.ads}>
-                        <h2>Edytuj ogłoszenie</h2>
-                        <form onSubmit={handleSubmit} className={styles.newAdd}>
-                            <label>
-                                Jakie ogłoszenie chcesz dodać?:
-                                <div className={styles.buttonGroup}>
-                                    <button
-                                        type="button"
-                                        className={`${styles.typeButton} ${formData.announcement_type === 'offering_services' ? styles.active : ''}`}
-                                        onClick={() => setFormData((prevData) => ({ ...prevData, announcement_type: 'offering_services' }))}
-                                    >
-                                        Chcę się opiekować
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={`${styles.typeButton} ${formData.announcement_type === 'looking_for_sitter' ? styles.active : ''}`}
-                                        onClick={() => setFormData((prevData) => ({ ...prevData, announcement_type: 'looking_for_sitter' })) }
-                                       >                                       
-                                        Szukam opiekuna
-                                    </button>
-                                </div>
-                            </label>
-                            {formData.announcement_type === 'looking_for_sitter' && (
-                                <div>
-                                    <p>Wybierz zwierzęta, które potrzebują opieki:</p>
-                                    <div className={styles.animalList}>
-                                        {userAnimals.map((animal) => (
-                                            <label key={animal.animal_id}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={formData.animal_ids.includes(animal.animal_id)}
-                                                    onChange={() => handleAnimalSelection(animal.animal_id)}
-                                                />
-                                                {animal.name}
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
 
-                            <label>
-                                Nazwa:
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </label>
-                            <label>
-                                Gdzie?:
-                                <select
-                                    name="location"
-                                    value={formData.location}
-                                    onChange={handleInputChange}
-                                    required
-                                >
-                                    <option value="">Wybierz...</option>
-                                    <option value="Babimost">Babimost</option>
-                                    <option value="Wolsztyn">Wolsztyn</option>
-                                </select>
-                            </label>
-                            <label>
-                                Treść ogłoszenia:
-                                <textarea
-                                    name="text"
-                                    value={formData.text}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </label>
-                           
-                            
-                            <label>
-                                Kiedy?:
-                                <input
-                                    type="datetime-local"
-                                    name="added_at"
-                                    value={formData.added_at}
-                                    onChange={handleInputChange}                                />
-                            </label>
-                            
-                            
-                            <Button type="submit" variant="success">
-                                Aktualizuj ogłoszenie
-                            </Button>
-                        </form>
+  const handleAnimalSelection = (animalId) => {
+    setFormData((prevData) => {
+      const isSelected = prevData.animal_ids.includes(animalId);
+      return {
+        ...prevData,
+        animal_ids: isSelected
+          ? prevData.animal_ids.filter((id) => id !== animalId)
+          : [...prevData.animal_ids, animalId],
+      };
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const { error: updateError } = await supabase
+        .from('announcement')
+        .update({ ...formData })
+        .eq('announcement_id', id);
+
+      if (updateError) throw updateError;
+      navigate('/');
+    } catch (err) {
+      console.error('Błąd podczas aktualizacji ogłoszenia:', err);
+      setError('Nie udało się zaktualizować ogłoszenia.');
+    }
+  };
+
+  return (
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <img src={logo} className={styles.logo} alt="logo" />
+        <Button
+          variant="danger"
+          className={styles.logoutButton}
+          onClick={() => navigate('/')}
+        >
+          Strona główna
+        </Button>
+      </header>
+
+      <div className={styles.mainContent}>
+        {isLoading ? (
+          <p>Ładowanie danych...</p>
+        ) : error ? (
+          <p className={styles.error}>{error}</p>
+        ) : (
+          <form onSubmit={handleSubmit} className={styles.newAdd}>
+            <label>
+              Typ ogłoszenia:
+              <div className={styles.buttonGroup}>
+                <button
+                  type="button"
+                  className={`${styles.typeButton} ${formData.announcement_type === 'offering_services' ? styles.active : ''}`}
+                  onClick={() =>
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      announcement_type: 'offering_services',
+                    }))
+                  }
+                >
+                  Chcę się opiekować
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.typeButton} ${formData.announcement_type === 'looking_for_sitter' ? styles.active : ''}`}
+                  onClick={() =>
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      announcement_type: 'looking_for_sitter',
+                    }))
+                  }
+                >
+                  Szukam opiekuna
+                </button>
+              </div>
+            </label>
+
+            {formData.announcement_type === 'looking_for_sitter' && (
+              <div>
+                <p>Wybierz zwierzęta, które potrzebują opieki:</p>
+                <div className={styles.animalList}>
+                  {userAnimals.map((animal) => (
+                    <label key={animal.animal_id}>
+                      <input
+                        type="checkbox"
+                        checked={formData.animal_ids.includes(animal.animal_id)}
+                        onChange={() => handleAnimalSelection(animal.animal_id)}
+                      />
+                      {animal.name}
+                    </label>
+                  ))}
                 </div>
-            </div>
-            <footer className={styles.footer}>
-                <p>&copy; Amelia</p>
-            </footer>
-        </div>
-    );
+              </div>
+            )}
+
+            <label>
+              Nazwa:
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+            <label>
+              Lokalizacja:
+              <select
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Wybierz...</option>
+                <option value="Babimost">Babimost</option>
+                <option value="Wolsztyn">Wolsztyn</option>
+              </select>
+            </label>
+            <label>
+              Treść ogłoszenia:
+              <textarea
+                name="text"
+                value={formData.text}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+            <label>
+              Data:
+              <input
+                type="datetime-local"
+                name="added_at"
+                value={formData.added_at}
+                onChange={handleInputChange}
+              />
+            </label>
+            <Button type="submit" variant="success">
+              Zaktualizuj ogłoszenie
+            </Button>
+          </form>
+        )}
+      </div>
+
+      <footer className={styles.footer}>
+        <p>&copy; Amelia</p>
+      </footer>
+    </div>
+  );
 };
 
 export default EditAnnouncement;

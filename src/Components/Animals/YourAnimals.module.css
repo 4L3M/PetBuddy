@@ -73,6 +73,13 @@ h2 {
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
+.card button {
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
 .headerButton {
     padding: 10px 20px;
     background-color: transparent;

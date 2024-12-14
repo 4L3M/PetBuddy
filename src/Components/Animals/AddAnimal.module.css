@@ -1,150 +1,162 @@
+/* Główny układ strony */
 .page {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #f3f2e9;
+    background-color: #f8f9fa; /* Jaśniejszy kolor dla kontrastu */
+    font-family: 'Arial', sans-serif;
 }
 
+/* Nagłówek */
 .header {
     background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
-    padding: 10px;
-    padding-left: 5%;
-    padding-right: 5%;
+    padding: 15px 5%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
     width: 80px;
     height: 80px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 0 10px;
 }
 
-.buttonGroup {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-}
-
-.roleButton {
-    padding: 10px 20px;
-    text-align: center;
-    background-color: #A4D5E7;
+.logoutButton {
+    background-color: #FAC9CE;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
+    font-size: 1rem;
+    color: #ffffff;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
-.roleButton:hover {
+.logoutButton:hover {
     background-color: #e6739f;
-    color: white;
 }
 
-.roleButton:active {
-    background-color: #e6739f;
-    color: white;
-}
-
-/* Główna sekcja z układem */
+/* Sekcja główna */
 .mainContent {
     display: flex;
-    flex-direction: row; /* Filtry po lewej, ogłoszenia po prawej */
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 5%;
-
-}
-
-.sideFilters {
-    display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 25%; /* Szerokość bocznego panelu */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.filterOption {
-    display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
+    gap: 30px;
+    padding: 40px 5%;
+    flex-grow: 1;
 }
 
-.filterOption input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: #A4D5E7;
-}
-
-/* Lista ogłoszeń */
 .ads {
-    width: 75%; /* Szerokość sekcji ogłoszeń */
-    background-color: #fff;
-    padding: 5%;
+    width: 100%;
+    max-width: 800px;
+    background-color: #ffffff;
     border-radius: 10px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
 }
 
+.ads h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Formularz dodawania */
 .newAdd {
     display: flex;
     flex-direction: column;
-
+    gap: 20px;
 }
 
-.adCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: white;
-    border: 1px solid #AF81CE;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: calc(33% - 20px); /* Elastyczny układ kart */
-    max-width: 300px;
-    min-width: 200px;
+.newAdd label {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 5px;
+    display: block;
 }
 
-.avatar {
-    width: 100px;
-    height: 100px;
+.newAdd input,
+.newAdd select,
+.newAdd textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    border: 2px solid #cce7f0;
-    object-fit: cover;
-    margin-bottom: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.newAdd input:focus,
+.newAdd select:focus,
+.newAdd textarea:focus {
+    outline: none;
+    border-color: #A4D5E7;
+    box-shadow: 0 0 5px rgba(164, 213, 231, 0.5);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Przyciski */
+button[type="submit"],
+.logoutButton {
+    background-color: #A4D5E7;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover,
+.logoutButton:hover {
+    background-color: #8cc7db;
 }
 
 /* Stopka */
 .footer {
     background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
     text-align: center;
-    padding: 10px;
+    padding: 15px;
+    font-size: 0.9rem;
+    color: #ffffff;
     margin-top: auto;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.footer p {
+    margin: 0;
 }
 
 /* Responsywność */
 @media (max-width: 768px) {
-    .mainPage {
-        flex-direction: column;
-    }
-
-    .sideFilters {
-        width: 100%;
-        margin-bottom: 20px;
+    .mainContent {
+        padding: 20px;
     }
 
     .ads {
-        width: 100%;
+        padding: 20px;
     }
 
-    .adCard {
-        width: 100%;
+    .newAdd input,
+    .newAdd select,
+    .newAdd textarea {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    button[type="submit"],
+    .logoutButton {
+        font-size: 0.9rem;
+        padding: 8px 16px;
     }
 }

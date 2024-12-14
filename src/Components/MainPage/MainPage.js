@@ -272,6 +272,7 @@ const MainPage = () => {
                         <label className={styles.filterOption}>
                             Czego potrzebujesz?
                             <select
+                                className={styles.filterSelect}
                                 name="announcement_type"
                                 value={filters.announcement_type}
                                 onChange={handleFilterChange}
