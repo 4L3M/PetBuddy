@@ -17,7 +17,9 @@ const EditAnimal = () => {
     age: '',
     info: '',
     owner_id: null,
+    animal_photo: '', // Pole na URL zdjęcia
   });
+  const [imageFile, setImageFile] = useState(null); // Przechowywanie nowego pliku
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -54,18 +56,48 @@ const EditAnimal = () => {
     }));
   };
 
+  // Obsługa wyboru nowego pliku
+  const handleFileChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
+  // Funkcja przesyłania zdjęcia do Supabase Storage
+  const uploadImage = async () => {
+    if (!imageFile) return formData.animal_photo; // Zwróć obecny URL, jeśli plik nie został zmieniony
+
+    const fileName = `${Date.now()}_${imageFile.name}`;
+    const { data, error } = await supabase.storage
+      .from('photos') // Nazwa bucketu w Supabase
+      .upload(fileName, imageFile);
+
+    if (error) {
+      console.error('Błąd przesyłania zdjęcia:', error);
+      throw error;
+    }
+
+    // Pobieranie URL do zdjęcia
+    const { data: publicUrlData } = supabase.storage
+      .from('photos')
+      .getPublicUrl(fileName);
+
+    return publicUrlData?.publicUrl || null;
+  };
+
   // Obsługa wysyłania formularza
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Przesyłanie nowego zdjęcia, jeśli zostało wybrane
+      const imageUrl = await uploadImage();
+
       const { error: updateError } = await supabase
         .from('animals')
-        .update({ ...formData })
+        .update({ ...formData, animal_photo: imageUrl }) // Aktualizacja URL zdjęcia
         .eq('animal_id', id);
 
       if (updateError) throw updateError;
       console.log('Dane zwierzęcia zostały zaktualizowane pomyślnie.');
-      navigate('/your-animals');
+      navigate('/animals');
     } catch (err) {
       console.error('Błąd podczas aktualizacji danych zwierzęcia:', err);
       setError('Nie udało się zaktualizować danych zwierzęcia.');
@@ -143,6 +175,26 @@ const EditAnimal = () => {
                 value={formData.info}
                 onChange={handleInputChange}
                 required
+              />
+            </label>
+            <label>
+              Aktualne zdjęcie:
+              {formData.animal_photo ? (
+                <img
+                  src={formData.animal_photo}
+                  alt="Zdjęcie zwierzęcia"
+                  className={styles.preview}
+                />
+              ) : (
+                <p>Brak zdjęcia</p>
+              )}
+            </label>
+            <label>
+              Zmień zdjęcie:
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
               />
             </label>
 

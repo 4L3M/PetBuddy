@@ -13,14 +13,12 @@ const Profile = () => {
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [accountType, setAccountType] = useState("");
-  const [preferredAnimals, setPreferredAnimals] = useState([]); // Nowy stan
   const [userId, setUserId] = useState("");
+  const [profilePicture, setProfilePicture] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
-  const animals = ["kot", "pies", "inne"]; // Lista zwierząt
-
-  const [isOwnerClicked, setIsOwnerClicked] = useState(false);
-  const [isPetsitterClicked, setIsPetsitterClicked] = useState(false);
+  const accountTypes = ["owner", "petsitter"];
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -42,10 +40,9 @@ const Profile = () => {
           const userData = userDetails[0];
           setName(userData.name || "");
           setSurname(userData.surname || "");
-         // setPhone(userData.phone || "");
           setLocation(userData.location || "");
           setAccountType(userData.account_type || "");
-          setPreferredAnimals(userData.preferred_animals?.split(",") || []);
+          setProfilePicture(userData.user_photo || ""); // Pobierz URL zdjęcia
         }
       } else {
         navigate("/login");
@@ -55,51 +52,69 @@ const Profile = () => {
     fetchUserData();
   }, [supabase, navigate]);
 
-  const handleAccountType = (type) => {
-    if (type === "owner") {
-      setIsOwnerClicked((prev) => !prev);
-    } else if (type === "petsitter") {
-      setIsPetsitterClicked((prev) => !prev);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
     }
   };
 
-  useEffect(() => {
-    if (isOwnerClicked && isPetsitterClicked) {
-      setAccountType("both");
-    } else if (isOwnerClicked) {
-      setAccountType("owner");
-    } else if (isPetsitterClicked) {
-      setAccountType("petsitter");
-    } else {
-      setAccountType("");
-    }
-  }, [isOwnerClicked, isPetsitterClicked]);
+  // Function to upload a profile picture
+  const uploadProfilePicture = async () => {
+    if (!selectedFile) return null;
 
-  const handleAnimalPreference = (animal) => {
-    setPreferredAnimals((prev) =>
-      prev.includes(animal)
-        ? prev.filter((a) => a !== animal)
-        : [...prev, animal]
-    );
+    const fileName = `${userId}_${selectedFile.name}`;
+    try {
+      // Upload the file to Supabase storage
+      const { data, error } = await supabase.storage
+        .from("photos")
+        .upload(fileName, selectedFile, { upsert: true });
+
+      if (error) {
+        console.error("Błąd podczas przesyłania zdjęcia:", error.message);
+        return null;
+      }
+
+      // Get the public URL for the uploaded file
+      const { data: publicUrlData, error: publicUrlError } = supabase.storage
+        .from("photos")
+        .getPublicUrl(fileName);
+
+      if (publicUrlError) {
+        console.error("Błąd podczas uzyskiwania publicznego URL zdjęcia:", publicUrlError.message);
+        return null;
+      }
+
+      return publicUrlData.publicUrl;
+    } catch (err) {
+      console.error("Unexpected error during upload:", err);
+      return null;
+    }
   };
 
+  // Function to update user profile
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
 
-    if (!accountType) {
-      alert("Musisz wybrać przynajmniej jeden typ konta.");
-      return;
+    let profilePictureUrl = profilePicture;
+
+    // Upload new profile picture if a file was selected
+    if (selectedFile) {
+      const uploadedUrl = await uploadProfilePicture();
+      if (uploadedUrl) {
+        profilePictureUrl = uploadedUrl;
+      }
     }
 
+    // Update user details in the database
     const { data, error } = await supabase
       .from("users_details")
       .update({
-        name,
-        surname,
-       // phone,
-        location,
-        account_type: accountType,
-        animal_type: preferredAnimals.join(","),
+        name: name || "",
+        surname: surname || "",
+        location: location || "",
+        account_type: accountType || "",
+        user_photo: profilePictureUrl || "",
       })
       .eq("user_id", userId);
 
@@ -107,6 +122,37 @@ const Profile = () => {
       console.error("Błąd podczas aktualizacji danych:", error.message);
     } else {
       console.log("Dane użytkownika zostały zaktualizowane:", data);
+      // Refetch user data to reflect changes in the UI
+      fetchUserData();
+    }
+  };
+
+  // Fetch user data to reflect updates
+  const fetchUserData = async () => {
+    const sessionResponse = await supabase.auth.getSession();
+    const session = sessionResponse.data.session;
+
+    if (session) {
+      const user = session.user;
+      setUserId(user.id);
+
+      const { data: userDetails, error } = await supabase
+        .from("users_details")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Błąd podczas pobierania danych użytkownika:", error);
+      } else if (userDetails && userDetails.length > 0) {
+        const userData = userDetails[0];
+        setName(userData.name || "");
+        setSurname(userData.surname || "");
+        setLocation(userData.location || "");
+        setAccountType(userData.account_type || "");
+        setProfilePicture(userData.user_photo || "");
+      }
+    } else {
+      navigate("/login");
     }
   };
 
@@ -119,102 +165,63 @@ const Profile = () => {
           Powrót do strony głównej
         </button>
       </header>
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <form className={styles.profileForm} onSubmit={handleUpdateProfile}>
-        <div className={styles.inputGroup}>
-          <label htmlFor="name">Imię</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.inputGroup}>
-          <label htmlFor="surname">Nazwisko</label>
-          <input
-            type="text"
-            id="surname"
-            value={surname}
-            onChange={(e) => setSurname(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.inputGroup}>
-          <label htmlFor="phone">Numer telefonu</label>
-          <input
-            type="tel"
-            id="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-
-        <div className={styles.inputGroup}>
-          <label htmlFor="location">Lokalizacja</label>
-          <select
-            className={styles.profile}
-            id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            required
-          >
-            <option value="">Wybierz lokalizację</option>
-            {locations.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.inputGroup}>
-          <label>Typ konta</label>
-          <div className={styles.buttonGroup}>
-            <button
-              type="button"
-              className={isOwnerClicked ? styles.activeButton : styles.inactiveButton}
-              onClick={() => handleAccountType("owner")}
-            >
-              Właściciel
-            </button>
-            <button
-              type="button"
-              className={isPetsitterClicked ? styles.activeButton : styles.inactiveButton}
-              onClick={() => handleAccountType("petsitter")}
-            >
-              Opiekun
-            </button>
-          </div>
-        </div>
-
-        {isPetsitterClicked && (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <form className={styles.profileForm} onSubmit={handleUpdateProfile}>
+          {/* Profile picture section */}
           <div className={styles.inputGroup}>
-            <label>Jakimi zwierzętami preferuję się opiekować:</label>
-            <div className={styles.checkboxGroup}>
-              {animals.map((animal) => (
-                <label key={animal}>
-                  <input
-                    type="checkbox"
-                    checked={preferredAnimals.includes(animal)}
-                    onChange={() => handleAnimalPreference(animal)}
-                  />
-                  {animal}
-                </label>
-              ))}
-            </div>
+            <label>Zdjęcie profilowe</label>
+            <img
+              src={profilePicture || "default_picture_url.png"} // Default placeholder
+              alt="Profile"
+              className={styles.profilePicture}
+            />
+            <input type="file" accept="image/*" onChange={handleFileChange} />
           </div>
-        )}
 
-        <button type="submit" className={styles.updateButton}>
-          Zapisz zmiany
-        </button>
-      </form>
+          {/* Other fields */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="name">Imię</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="surname">Nazwisko</label>
+            <input
+              type="text"
+              id="surname"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+              required
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="location">Lokalizacja</label>
+            <select
+              className={styles.profile}
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+            >
+              <option value="">Wybierz lokalizację</option>
+              {locations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button type="submit" className={styles.updateButton}>
+            Zapisz zmiany
+          </button>
+        </form>
       </div>
-
       <footer className={styles.footer}>
         <p>&copy; Amelia</p>
       </footer>

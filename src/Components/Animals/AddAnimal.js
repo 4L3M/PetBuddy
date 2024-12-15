@@ -10,7 +10,6 @@ const AddAnimal = () => {
     const navigate = useNavigate();
 
     const [user, setUser] = useState(null);
-    const [userAnimals, setUserAnimals] = useState([]); // Zwierzęta użytkownika
     const [formData, setFormData] = useState({
         name: '',
         animal_type: '',
@@ -18,7 +17,9 @@ const AddAnimal = () => {
         age: '',
         info: '',
         owner_id: null, // ID użytkownika
+        animal_photo: '', // URL przesłanego zdjęcia
     });
+    const [imageFile, setImageFile] = useState(null); // Przechowywanie wybranego pliku
 
     // Załaduj dane użytkownika
     useEffect(() => {
@@ -46,15 +47,53 @@ const AddAnimal = () => {
         }));
     };
 
+    // Funkcja obsługująca wybór pliku
+    const handleFileChange = (e) => {
+        setImageFile(e.target.files[0]);
+    };
+
+    // Funkcja przesyłania zdjęcia do Supabase Storage
+    const uploadImage = async () => {
+        if (!imageFile) return null;
+
+        const fileName = `${Date.now()}_${imageFile.name}`;
+        console.log(imageFile.type)
+        const { data, error } = await supabase.storage
+            .from('photos') // Nazwa bucketu
+            .upload(fileName, imageFile);
+
+        if (error) {
+            console.error('Błąd przesyłania zdjęcia:', error);
+            return null;
+        }
+
+        // Pobieranie URL do zdjęcia
+        const { data: publicUrlData } = supabase.storage
+            .from('photos')
+            .getPublicUrl(fileName);
+
+        return publicUrlData?.publicUrl || null;
+    };
+
     // Funkcja obsługująca wysyłanie formularza
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Przesyłanie zdjęcia, jeśli zostało wybrane
+        const imageUrl = await uploadImage();
+        if(!imageUrl) {
+            return;
+        }
+        if (imageUrl) {
+            formData.animal_photo = imageUrl; // Dodanie URL zdjęcia do formData
+        }
+
         const { error } = await supabase.from('animals').insert([formData]);
         if (error) {
             console.error('Błąd dodawania zwierzęcia:', error);
         } else {
             console.log('Zwierzę zostało dodane pomyślnie');
-            navigate('/your-animals'); // Powrót do listy zwierząt
+            navigate('/animals'); // Powrót do listy zwierząt
         }
     };
 
@@ -124,6 +163,14 @@ const AddAnimal = () => {
                                 value={formData.info}
                                 onChange={handleInputChange}
                                 required
+                            />
+                        </label>
+                        <label>
+                            Zdjęcie:
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
                             />
                         </label>
 

@@ -18,7 +18,7 @@ const AddAnnouncement = () => {
         location: '',
         added_at: '',
         active: true,
-        animal_ids: [],
+        animal_id: '',
         owner_id: null,
         animal_type: []
     });
@@ -89,12 +89,12 @@ const AddAnnouncement = () => {
 
     const handleAnimalSelection = (animalId) => {
         setFormData((prevData) => {
-            const isSelected = prevData.animal_ids.includes(animalId);
+            const isSelected = prevData.animal_id.includes(animalId);
             return {
                 ...prevData,
-                animal_ids: isSelected
-                    ? prevData.animal_ids.filter((id) => id !== animalId)
-                    : [...prevData.animal_ids, animalId]
+                animal_id: isSelected
+                    ? prevData.animal_id.filter((id) => id !== animalId)
+                    : [...prevData.animal_id, animalId]
             };
         });
     };
@@ -113,6 +113,11 @@ const AddAnnouncement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setFormData((prevData) => ({
+            ...prevData,
+            animal_id: prevData.animal_id[0]
+        }));
+        console.log(formData);  
         const { error } = await supabase.from('announcement').insert([formData]);
 
         if (error) {
@@ -158,7 +163,7 @@ const AddAnnouncement = () => {
                                         <label key={animal.animal_id}>
                                             <input
                                                 type="checkbox"
-                                                checked={formData.animal_ids.includes(animal.animal_id)}
+                                                checked={formData.animal_id.includes(animal.animal_id)}
                                                 onChange={() => handleAnimalSelection(animal.animal_id)}
                                             />
                                             {animal.name}
