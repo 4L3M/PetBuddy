@@ -17,6 +17,7 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [imageFile, setImageFile] = useState(null); // Przechowywanie nowego pliku
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
   const accountTypes = ["owner", "petsitter"];
 
@@ -56,40 +57,28 @@ const Profile = () => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
+      setImageFile(file); // Update image file
     }
   };
 
-  // Function to upload a profile picture
-  const uploadProfilePicture = async () => {
-    if (!selectedFile) return null;
+  const uploadImage = async () => {
+    if (!imageFile) return profilePicture; // Return existing picture if no file selected
 
-    const fileName = `${userId}_${selectedFile.name}`;
-    try {
-      // Upload the file to Supabase storage
-      const { data, error } = await supabase.storage
-        .from("photos")
-        .upload(fileName, selectedFile, { upsert: true });
+    const fileName = `${Date.now()}_${imageFile.name}`;
+    const { data, error } = await supabase.storage
+      .from('photos') // Bucket name in Supabase
+      .upload(fileName, imageFile);
 
-      if (error) {
-        console.error("Błąd podczas przesyłania zdjęcia:", error.message);
-        return null;
-      }
-
-      // Get the public URL for the uploaded file
-      const { data: publicUrlData, error: publicUrlError } = supabase.storage
-        .from("photos")
-        .getPublicUrl(fileName);
-
-      if (publicUrlError) {
-        console.error("Błąd podczas uzyskiwania publicznego URL zdjęcia:", publicUrlError.message);
-        return null;
-      }
-
-      return publicUrlData.publicUrl;
-    } catch (err) {
-      console.error("Unexpected error during upload:", err);
-      return null;
+    if (error) {
+      console.error('Błąd przesyłania zdjęcia:', error);
+      return profilePicture; // Return old image URL on error
     }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('photos')
+      .getPublicUrl(fileName);
+
+    return publicUrlData?.publicUrl || profilePicture;
   };
 
   // Function to update user profile
@@ -100,7 +89,7 @@ const Profile = () => {
 
     // Upload new profile picture if a file was selected
     if (selectedFile) {
-      const uploadedUrl = await uploadProfilePicture();
+      const uploadedUrl = await uploadImage();
       if (uploadedUrl) {
         profilePictureUrl = uploadedUrl;
       }
@@ -123,7 +112,9 @@ const Profile = () => {
     } else {
       console.log("Dane użytkownika zostały zaktualizowane:", data);
       // Refetch user data to reflect changes in the UI
+      console.log(data);
       fetchUserData();
+
     }
   };
 

@@ -14,7 +14,7 @@ const MainPage = () => {
         navigate(`/announcement/${announcement.id}`, { state: announcement });
       };
 
-
+    const [imageUrls, setImageUrls] = useState({});
     const [user, setUser] = useState(null); // Dane użytkownika
     const [selectedRole, setSelectedRole] = useState(''); // Rola użytkownika
     const [ads, setAds] = useState([]); // Ogłoszenia
@@ -22,7 +22,7 @@ const MainPage = () => {
     const [filters, setFilters] = useState({
         location: '',
         active: true,
-        animal_type: [],
+        animal_type: '',
         announcement_type: '', // Nowy filtr dla rodzaju ogłoszeń
     }); // Filtry
     const [userDetails, setUserDetails] = useState(null);
@@ -99,10 +99,10 @@ const MainPage = () => {
             if (filters.announcement_type) {
                 query = query.eq('announcement_type', filters.announcement_type);
             }
-            // if(filters.animal_type){
-            //     console.log(filters.animal_type[0])
-            //     query = query.eq('animal_type', filters.animal_type[0])
-            // }
+            // Filtrowanie wg rodzaju zwierzęcia
+            if (filters.animal_type) {
+                query = query.eq('animal_type', filters.animal_type);
+            }
 
             const { data, error } = await query;
             if (error) {
@@ -131,16 +131,13 @@ const MainPage = () => {
         }));
     };
 
-    const handleAnimalFilterChange = (e, animal) => {
-        setFilters((prev) => {
-            const newAnimalType = prev.animal_type.includes(animal)
-                ? prev.animal_type.filter((a) => a !== animal)
-                : [...prev.animal_type, animal];
-            return {
-                ...prev,
-                animal_type: newAnimalType,
-            };
-        });
+    // Obsługa zmiany filtra dla zwierzęcia
+    const handleAnimalFilterChange = (e) => {
+        const { value } = e.target;
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            animal_type: value, // Ustawiamy nową wartość jako string
+        }));
     };
 
     const handleLogout = async () => {
@@ -158,6 +155,29 @@ const MainPage = () => {
             setUser(null);
             navigate('/');
         }
+    };
+
+    const fetchImage = async (ad) => {
+        try {
+            if (ad.announcement_type === "offering_services") {
+                const { data: userDetails, error } = await supabase
+                    .from("users_details")
+                    .select("user_photo")
+                    .eq("user_id", ad.owner_id)
+                    .single();
+                return userDetails?.user_photo || "default_petsitter_image_url.png";
+            } else if (ad.announcement_type === "looking_for_services") {
+                const { data: animalDetails, error } = await supabase
+                    .from("animals")
+                    .select("animal_photo")
+                    .eq("animal_id", ad.animal_id)
+                    .single();
+                return animalDetails?.animal_photo || "default_pet_image_url.png";
+            }
+        } catch (error) {
+            console.error("Błąd podczas pobierania zdjęcia:", error);
+        }
+        return "default_image_url.png"; // Fallback image
     };
 
     return (
@@ -251,23 +271,21 @@ const MainPage = () => {
                                 ))}
                             </select>
                         </label>
-                        {/* <label className={styles.filterOption}>
+                        <label className={styles.filterOption}>
                             Rodzaj zwierzęcia:
-                            <div className={styles.animalFilters}>
+                            <select
+                                name="animal_type"
+                                value={filters.animal_type}
+                                onChange={handleAnimalFilterChange}
+                            >
+                                <option value="">Wybierz rodzaj zwierzęcia</option>
                                 {animals.map((animal) => (
-                                    <label key={animal} className={styles.filterOption}>
-                                        <input
-                                            type="checkbox"
-                                            name="animal_type"
-                                            value={animal}
-                                            checked={filters.animal_type.includes(animal)}
-                                            onChange={(e) => handleAnimalFilterChange(e, animal)}
-                                        />
+                                    <option key={animal} value={animal}>
                                         {animal}
-                                    </label>
+                                    </option>
                                 ))}
-                            </div>
-                        </label> */}
+                            </select>
+                        </label>
                         {/* Filtr dla rodzaju ogłoszeń */}
                         <label className={styles.filterOption}>
                             Czego potrzebujesz?
@@ -310,7 +328,14 @@ const MainPage = () => {
                                     className={styles.adCard}
                                     onClick={() => navigate(`/ad/${ad.announcement_id}`, { state: ad })}
                                     >
+                                        <img
+                                             src={fetchImage(ad)} // Correct usage, call the fetchImage function
+                                             alt={ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}
+                                             className={styles.adImage}
+                                        />
+
                                         <h3>{ad.name}</h3>
+                                        <p>{ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}</p>
                                         <p>Zwierzę: {ad.animal_type}</p>
                                         <p>{ad.text}</p>
                                         <p>Lokalizacja: {ad.location}</p>
