@@ -101,7 +101,7 @@ const MainPage = () => {
             }
             // Filtrowanie wg rodzaju zwierzęcia
             if (filters.animal_type) {
-                query = query.eq('animal_type', filters.animal_type);
+                query = query.eq('animal_type', JSON.stringify(filters.animal_type));
             }
 
             const { data, error } = await query;
@@ -282,9 +282,12 @@ const MainPage = () => {
                                 {animals.map((animal) => (
                                     <option key={animal} value={animal}>
                                         {animal}
+                                        
                                     </option>
+                                    
                                 ))}
                             </select>
+                            {console.log(filters.animal_type)}
                         </label>
                         {/* Filtr dla rodzaju ogłoszeń */}
                         <label className={styles.filterOption}>

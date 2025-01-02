@@ -1,0 +1,9 @@
+.sliderKnob {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #ff5c8d;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translateX(-50%);
+}

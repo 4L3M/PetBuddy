@@ -15,6 +15,7 @@ import AnnouncementDetails from './Components/Announcements/AnnouncementDetails'
 import { GlobalProvider } from './GlobalContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+import Kontrolka from './Components/Kontrolka/Kontrolka';
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
           <Route path="/edit-animal/:id" element={<EditAnimal />} />
           <Route path="/animals" element={<YourAnimals />} />
           <Route path="/add-animal" element={<AddAnimal />} />
-
+          <Route path="/kontrolka" element={<Kontrolka />} />
           <Route path="/ad/:id" element={<AnnouncementDetails />} />
         </Routes>
       </BrowserRouter>

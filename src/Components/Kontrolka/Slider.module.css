@@ -1,0 +1,37 @@
+.slider-value-heart {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #ff5c8d; /* Heart color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    transform: rotate(45deg); /* Rotate to make the heart shape */
+    margin-top: -10px; /* Adjust position to ensure it's above the knob */
+}
+
+
+.slider-value-heart::before,
+.slider-value-heart::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #ff5c8d; /* Heart color */
+    border-radius: 50px 50px 0 0;}
+
+.slider-value-heart::before {
+    top: -10px;
+    left: 0;
+    border-radius: 50px 50px 0 0;
+}
+
+.slider-value-heart::after {
+    top: -10px;
+    right: 0;    
+    border-radius: 50px 50px 0 0;
+}
+
