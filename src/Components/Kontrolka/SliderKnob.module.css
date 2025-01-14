@@ -7,3 +7,42 @@
     cursor: pointer;
     transform: translateX(-50%);
 }
+.sliderKnob {
+    transform: translateX(-50%);
+    cursor: grab;
+    width: 30px;
+    height: 30px;
+}
+
+.sliderKnob.dragging {
+    cursor: grabbing;
+}
+
+.heart {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #ff5c8d;
+    transform: rotate(-45deg);
+    margin: 0 auto;
+}
+
+.heart::before,
+.heart::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #ff5c8d;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+}
+
+.heart::before {
+    left: -10px; /* Lewy okrąg */
+}
+
+.heart::after {
+    top: -10px; /* Górny okrąg */
+}

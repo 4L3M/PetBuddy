@@ -78,17 +78,22 @@ const AddAnimal = () => {
     // Funkcja obsługująca wysyłanie formularza
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         // Przesyłanie zdjęcia, jeśli zostało wybrane
-        const imageUrl = await uploadImage();
-        if(!imageUrl) {
+        const imageUrl = imageFile ? await uploadImage() : '';
+    
+        if (imageFile && !imageUrl) {
+            alert('Nie udało się przesłać zdjęcia');
             return;
         }
-        if (imageUrl) {
-            formData.animal_photo = imageUrl; // Dodanie URL zdjęcia do formData
-        }
-
-        const { error } = await supabase.from('animals').insert([formData]);
+    
+        // Dodanie URL zdjęcia lub pustego pola
+        const finalFormData = {
+            ...formData,
+            animal_photo: imageUrl, // Puste zdjęcie, jeśli nie przesłano pliku
+        };
+    
+        const { error } = await supabase.from('animals').insert([finalFormData]);
         if (error) {
             console.error('Błąd dodawania zwierzęcia:', error);
         } else {
@@ -96,6 +101,7 @@ const AddAnimal = () => {
             navigate('/animals'); // Powrót do listy zwierząt
         }
     };
+    
 
     return (
         <div className={styles.page}>

@@ -38,6 +38,7 @@ const SliderKnob = ({ position, onDrag }) => {
                 backgroundColor: dragging ? '#ff5c8d' : '#333',
             }}
             onMouseDown={handleMouseDown}
+
         />
     );
 };

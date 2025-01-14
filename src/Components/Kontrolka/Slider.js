@@ -1,83 +1,79 @@
 import React, { useState } from 'react';
 import SliderKnob from './SliderKnob';
+import { UIEvent } from './UIEvent'; // Import UIEvent class
+import styles from './Slider.module.css';
 
 const Slider = ({
-    min = 0,
-    max = 100,
+    minValue = 0,
+    maxValue = 100,
     initialValue = 50,
     step = 1,
     onChange = () => {},
+    onEvent = () => {}, // Receive event handler as prop
     customStyles = {},
-    showValue = true, // new prop to control the display of the value
-    valueFormatter = (value) => value, // function to format the displayed value
+    showValue = true,
+    valueFormatter = (value) => value,
 }) => {
     const [value, setValue] = useState(initialValue);
-    const [isFocused, setIsFocused] = useState(false);
 
     const handleDrag = (delta) => {
         const newValue = Math.min(
-            max,
-            Math.max(min, value + Math.round(delta / 2) * step)
+            maxValue,
+            Math.max(minValue, value + Math.round(delta / 2) * step)
         );
         setValue(newValue);
         onChange(newValue);
+        onEvent(new UIEvent('drag', { delta, newValue })); // Emit drag event
     };
-
-    const handleFocus = () => setIsFocused(true);
-    const handleBlur = () => setIsFocused(false);
 
     const handleInputChange = (e) => {
-        const newValue = Math.min(max, Math.max(min, Number(e.target.value) || min));
+        const newValue = Math.min(
+            maxValue,
+            Math.max(minValue, Number(e.target.value) || minValue)
+        );
         setValue(newValue);
         onChange(newValue);
+        onEvent(new UIEvent('inputChange', { newValue })); // Emit input change event
     };
 
-    const sliderPercentage = ((value - min) / (max - min)) * 100;
+    const sliderPercentage = ((value - minValue) / (maxValue - minValue)) * 100;
+
+    const handleSliderClick = (e) => {
+        const sliderRect = e.target.getBoundingClientRect();
+        const clickPosition = e.clientX - sliderRect.left;
+        const newSliderPercentage = (clickPosition / sliderRect.width) * 100;
+        const newValue = Math.round(((newSliderPercentage / 100) * (maxValue - minValue)) + minValue);
+        setValue(Math.min(maxValue, Math.max(minValue, newValue)));
+        onChange(newValue);
+        onEvent(new UIEvent('click', { clickPosition, newValue }));
+    };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {/* Slider */}
-            <div
-                tabIndex={0} // Make the slider focusable
-                onFocus={handleFocus} // Handle focus event
-                onBlur={handleBlur} // Handle blur event
-                style={{
-                    position: 'relative',
-                    width: '300px', // Adjust width as needed
-                    height: '20px',
-                    backgroundColor: '#ddd',
-                    borderRadius: '5px',
-                    ...customStyles.sliderTrack,
-                }}
-            >
-                {/* Display value in a heart above the knob */}
+        <div className={styles.main}>
+            <div className={styles.slider} onClick={handleSliderClick}>
                 {showValue && (
                     <div
                         style={{
                             position: 'absolute',
-                            top: '-35px', // Position the heart above the knob
+                            top: '-40px',
                             left: `${sliderPercentage}%`,
                             transform: 'translateX(-50%)',
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            color: '#fff',
-                            backgroundColor: '#ff5c8d', // Heart color
-                            borderRadius: '50px 50px 0 0',
-                            width: '30px',
-                            height: '30px',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
-                            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
-                            ...customStyles.valueText,
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#ff5c8d',
+                            clipPath:
+                                'path("M20 0C31.0457 0 40 8.95431 40 20C40 26.6274 35.4789 32.2137 29.064 36.2701C26.2084 38.0371 23.0828 39.4922 20.3477 40.6805C20.1911 40.7468 20.0938 40.7801 20 40.8221C19.9062 40.7801 19.8089 40.7468 19.6523 40.6805C16.9172 39.4922 13.7916 38.0371 10.936 36.2701C4.52113 32.2137 0 26.6274 0 20C0 8.95431 8.95431 0 20 0Z")',
+                            ...customStyles.valueHeart,
                         }}
-                        className="slider-value-heart"
                     >
-                        {valueFormatter(value)}
+                        <span style={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}>
+                            {valueFormatter(value)}
+                        </span>
                     </div>
                 )}
-
-                {/* Active track */}
                 <div
                     style={{
                         position: 'absolute',
@@ -88,19 +84,15 @@ const Slider = ({
                         ...customStyles.sliderProgress,
                     }}
                 ></div>
-
-                {/* Slider knob */}
                 <SliderKnob position={sliderPercentage} onDrag={handleDrag} />
             </div>
-
-            {/* Numeric input */}
             <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center' }}>
                 <input
                     type="number"
                     value={value}
                     onChange={handleInputChange}
-                    min={min}
-                    max={max}
+                    minValue={minValue}
+                    maxValue={maxValue}
                     step={step}
                     style={{
                         width: '60px',

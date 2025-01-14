@@ -35,3 +35,21 @@
     border-radius: 50px 50px 0 0;
 }
 
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f3f2e9;
+}
+
+.slider {
+    position: relative;
+    width: 300px; /* Slider width */
+    height: 20px;
+    background-color: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+
+}

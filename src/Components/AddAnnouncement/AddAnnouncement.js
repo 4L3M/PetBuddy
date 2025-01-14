@@ -20,13 +20,13 @@ const AddAnnouncement = () => {
         active: true,
         animal_id: '',
         owner_id: null,
-        animal_type: []
+        animal_type: [] // Tablica typów zwierząt
     });
 
     const ANIMAL_TYPE_MAP = {
-        Pies: 'dog',
-        Kot: 'cat',
-        Inne: 'other'
+        Pies: 'pies',
+        Kot: 'kot',
+        Inne: 'inne'
     };
 
     useEffect(() => {
@@ -61,7 +61,7 @@ const AddAnnouncement = () => {
             if (userData?.user) {
                 const { data: animals, error } = await supabase
                     .from('animals')
-                    .select('animal_id, name')
+                    .select('animal_id, name, animal_type')
                     .eq('owner_id', userData.user.id);
 
                 if (error) {
@@ -80,23 +80,19 @@ const AddAnnouncement = () => {
     }, [supabase]);
 
     const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
+
         setFormData((prevData) => ({
             ...prevData,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: value === '' ? null : value // Jeśli wartość jest pusta, ustawiamy na null
         }));
     };
 
     const handleAnimalSelection = (animalId) => {
-        setFormData((prevData) => {
-            const isSelected = prevData.animal_id.includes(animalId);
-            return {
-                ...prevData,
-                animal_id: isSelected
-                    ? prevData.animal_id.filter((id) => id !== animalId)
-                    : [...prevData.animal_id, animalId]
-            };
-        });
+        setFormData((prevData) => ({
+            ...prevData,
+            animal_id: animalId
+        }));
     };
 
     const handleAnimalTypeSelection = (animalType) => {
@@ -113,13 +109,19 @@ const AddAnnouncement = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setFormData((prevData) => ({
-            ...prevData,
-            animal_id: prevData.animal_id[0]
-        }));
-        console.log(formData);  
-        const { error } = await supabase.from('announcement').insert([formData]);
-
+    
+        // Jeśli animal_type jest pustą tablicą, ustawiamy ją na null
+        const formattedAnimalType = formData.animal_type.length === 0 ? null : formData.animal_type;  // Bez JSON.stringify()
+    
+        // Jeśli animal_id jest pusty, ustawiamy na null
+        const dataToInsert = {
+            ...formData,
+            animal_type: formattedAnimalType,
+            animal_id: formData.animal_id === '' ? null : formData.animal_id
+        };
+    
+        const { error } = await supabase.from('announcement').insert([dataToInsert]);
+    
         if (error) {
             console.error('Błąd dodawania ogłoszenia:', error);
         } else {
@@ -157,19 +159,23 @@ const AddAnnouncement = () => {
 
                         {formData.announcement_type === 'looking_for_sitter' && (
                             <div>
-                                <p>Wybierz zwierzęta, które potrzebują opieki:</p>
-                                <div className={styles.animalList}>
-                                    {userAnimals.map((animal) => (
-                                        <label key={animal.animal_id}>
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.animal_id.includes(animal.animal_id)}
-                                                onChange={() => handleAnimalSelection(animal.animal_id)}
-                                            />
-                                            {animal.name}
-                                        </label>
-                                    ))}
-                                </div>
+                                <label>
+                                    Wybierz zwierzę, które potrzebuje opieki:
+                                    <select
+                                        name="animal_id"
+                                        className={styles.animalSelect}
+                                        value={formData.animal_id}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">Wybierz...</option>
+                                        {userAnimals.map((animal) => (
+                                            <option key={animal.animal_id} value={animal.animal_id}>
+                                                {animal.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
                             </div>
                         )}
 
@@ -237,7 +243,7 @@ const AddAnnouncement = () => {
                             />
                         </label>
 
-                        <Button type="submit" variant="success">Dodaj ogłoszenie</Button>
+                        <Button id="add_annoucment_button" type="submit" variant="success">Dodaj ogłoszenie</Button>
                     </form>
                 </div>
             </div>

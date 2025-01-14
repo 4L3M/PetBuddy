@@ -1,4 +1,5 @@
-import React from "react";
+import React from 'react';
+import { UIEvent } from './UIEvent'; // Import UIEvent class
 
 export class UIControl extends React.Component {
   constructor(props) {
@@ -13,16 +14,20 @@ export class UIControl extends React.Component {
   }
 
   onClick() {
-    console.log("UIControl clicked");
+    const event = new UIEvent('click', this);
+    this.props.onEvent(event);  // Emit event to parent listener
+    console.log('UIControl clicked');
   }
 
   onFocus() {
-    console.log("UIControl focused");
+    const event = new UIEvent('focus', this);
+    this.props.onEvent(event);
+    console.log('UIControl focused');
   }
 
   onHover() {
-    console.log("UIControl hovered");
+    const event = new UIEvent('hover', this);
+    this.props.onEvent(event);
+    console.log('UIControl hovered');
   }
-
-
 }

@@ -1,16 +1,22 @@
 import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../GlobalContext';
-
 import styles from './Kontrolka.module.css';
 import Slider from './Slider';
-import { EventListener } from './EventListener';
+import { EventListener } from './EventListener';  // Import EventListener
 
 const Kontrolka = () => {
     const { supabase } = useContext(GlobalContext);
-    const navigate = useNavigate();
 
     const sliderListener = new EventListener();
+
+    // Event handler, which will handle events triggered from UIControl
+    const handleEvent = (event) => {
+        console.log(`Event received: ${event.type}`);
+        // You can add more logic to handle the event, for example:
+        if (event.type === 'click') {
+            // Handle click event
+        }
+    };
 
     const handleSliderChange = (value) => {
         console.log(`Slider value: ${value}`);
@@ -23,10 +29,8 @@ const Kontrolka = () => {
             </header>
 
             <div className={styles.mainContent}>
-                
-                <Slider onChange={handleSliderChange} />
-                
-
+                {/* Pass handleEvent as prop to Slider */}
+                <Slider onChange={handleSliderChange} onEvent={handleEvent} />
             </div>
 
             <footer className={styles.footer}>

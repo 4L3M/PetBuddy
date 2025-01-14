@@ -71,13 +71,13 @@ const Register = () => {
   if (!password.trim()) {
     errors.password = "Hasło jest wymagane.";
   } else if (password.length < 6) {
-    errors.password = "Hasło musi mieć co najmniej 6 znaków.";
+    errors.password = "Hasło musi spełniać wymogi:  - mieć co najmniej 6 znaków, \n - zawierać co najmniej jedną wielką literę, \n - zawierać co najmniej jedną cyfrę, \n - zawierać co najmniej jeden znak specjalny.";
   } else if (!/[A-Z]/.test(password)) {
-    errors.password = "Hasło musi zawierać co najmniej jedną wielką literę.";
+    errors.password = "Hasło musi spełniać wymogi:  - mieć co najmniej 6 znaków, \n - zawierać co najmniej jedną wielką literę, \n - zawierać co najmniej jedną cyfrę, \n - zawierać co najmniej jeden znak specjalny.";
   } else if (!/[0-9]/.test(password)) {
-    errors.password = "Hasło musi zawierać co najmniej jedną cyfrę.";
+    errors.password = "Hasło musi spełniać wymogi:  - mieć co najmniej 6 znaków, \n - zawierać co najmniej jedną wielką literę, \n - zawierać co najmniej jedną cyfrę, \n - zawierać co najmniej jeden znak specjalny.";
   } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.password = "Hasło musi zawierać co najmniej jeden znak specjalny.";
+    errors.password = "Hasło musi spełniać wymogi:  - mieć co najmniej 6 znaków, \n - zawierać co najmniej jedną wielką literę, \n - zawierać co najmniej jedną cyfrę, \n - zawierać co najmniej jeden znak specjalny.";
   }
 
   // Walidacja potwierdzenia hasła
@@ -261,7 +261,7 @@ const Register = () => {
               )}
             </div>
 
-            <div className={styles.inputGroup}>
+            {/* <div className={styles.inputGroup}>
               <label htmlFor="phone" className={styles.labelRegister}>
                 Numer telefonu
               </label>
@@ -277,7 +277,7 @@ const Register = () => {
               {formErrors.phone && (
                 <div className={styles.errorText}>{formErrors.phone}</div>
               )}
-            </div>
+            </div> */}
 
             <div className={styles.inputGroup}>
               <label htmlFor="password" className={styles.labelRegister}>

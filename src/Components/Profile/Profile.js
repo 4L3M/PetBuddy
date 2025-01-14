@@ -20,35 +20,36 @@ const Profile = () => {
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
   const accountTypes = ["owner", "petsitter"];
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const sessionResponse = await supabase.auth.getSession();
-      const session = sessionResponse.data.session;
+  // Fetch user data function
+  const fetchUserData = async () => {
+    const sessionResponse = await supabase.auth.getSession();
+    const session = sessionResponse.data.session;
 
-      if (session) {
-        const user = session.user;
-        setUserId(user.id);
+    if (session) {
+      const user = session.user;
+      setUserId(user.id);
 
-        const { data: userDetails, error } = await supabase
-          .from("users_details")
-          .select("*")
-          .eq("user_id", user.id);
+      const { data: userDetails, error } = await supabase
+        .from("users_details")
+        .select("*")
+        .eq("user_id", user.id);
 
-        if (error) {
-          console.error("Błąd podczas pobierania danych użytkownika:", error);
-        } else if (userDetails && userDetails.length > 0) {
-          const userData = userDetails[0];
-          setName(userData.name || "");
-          setSurname(userData.surname || "");
-          setLocation(userData.location || "");
-          setAccountType(userData.account_type || "");
-          setProfilePicture(userData.user_photo || ""); // Pobierz URL zdjęcia
-        }
-      } else {
-        navigate("/login");
+      if (error) {
+        console.error("Błąd podczas pobierania danych użytkownika:", error);
+      } else if (userDetails && userDetails.length > 0) {
+        const userData = userDetails[0];
+        setName(userData.name || "");
+        setSurname(userData.surname || "");
+        setLocation(userData.location || "");
+        setAccountType(userData.account_type || "");
+        setProfilePicture(userData.user_photo || ""); // Pobierz URL zdjęcia
       }
-    };
+    } else {
+      navigate("/login");
+    }
+  };
 
+  useEffect(() => {
     fetchUserData();
   }, [supabase, navigate]);
 
@@ -124,35 +125,6 @@ const Profile = () => {
       console.log("Dane użytkownika zostały zaktualizowane:", data);
       // Refetch user data to reflect changes in the UI
       fetchUserData();
-    }
-  };
-
-  // Fetch user data to reflect updates
-  const fetchUserData = async () => {
-    const sessionResponse = await supabase.auth.getSession();
-    const session = sessionResponse.data.session;
-
-    if (session) {
-      const user = session.user;
-      setUserId(user.id);
-
-      const { data: userDetails, error } = await supabase
-        .from("users_details")
-        .select("*")
-        .eq("user_id", user.id);
-
-      if (error) {
-        console.error("Błąd podczas pobierania danych użytkownika:", error);
-      } else if (userDetails && userDetails.length > 0) {
-        const userData = userDetails[0];
-        setName(userData.name || "");
-        setSurname(userData.surname || "");
-        setLocation(userData.location || "");
-        setAccountType(userData.account_type || "");
-        setProfilePicture(userData.user_photo || "");
-      }
-    } else {
-      navigate("/login");
     }
   };
 

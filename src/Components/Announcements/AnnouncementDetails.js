@@ -1,10 +1,7 @@
-import React from "react";
-import logo from '../Assets/logo.png';
+import React, { useState, useEffect, useContext } from "react";
+import logo from "../Assets/logo.png";
 import { Button } from "react-bootstrap";
-import { useNavigate } from 'react-router-dom';
-import { useContext } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { GlobalContext } from "../../GlobalContext";
 
 import styles from "./AnnouncementDetails.module.css";
@@ -13,38 +10,45 @@ const AnnouncementDetails = () => {
     const { supabase } = useContext(GlobalContext);
     const navigate = useNavigate();
 
-    const { id } = useParams(); // Pobieranie ID z URL-a
-    const location = useLocation(); // Pobieranie danych przekazanych w state
-    const announcement = location.state; // Dane ogłoszenia przekazane z poprzedniej strony
+    const { id } = useParams();
+    const location = useLocation();
+    const announcement = location.state;
     const [adDetails, setAdDetails] = useState(null);
+    const [ownerDetails, setOwnerDetails] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
-    const [selectedRole, setSelectedRole] = useState('owner');
-    
-    const handleRoleChange = (role) => {
-        setSelectedRole(role);
-        console.log('Wybrana rola:', role);
-    };
 
-    // Pobierz szczegóły ogłoszenia na podstawie ID
     useEffect(() => {
-        const fetchAdDetails = async () => {
+        const fetchDetails = async () => {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('announcement')
-                .select('*')
-                .eq('announcement_id', id)
-                .single(); // Pobierz jedno ogłoszenie
+            try {
+                // Pobieranie szczegółów ogłoszenia
+                const { data: adData, error: adError } = await supabase
+                    .from("announcement")
+                    .select("*")
+                    .eq("announcement_id", id)
+                    .single();
 
-            if (error) {
-                console.error('Błąd pobierania szczegółów ogłoszenia:', error);
-            } else {
-                setAdDetails(data);
+                if (adError) throw adError;
+
+                setAdDetails(adData);
+
+                // Pobieranie szczegółów właściciela ogłoszenia
+                const { data: userData, error: userError } = await supabase
+                    .from("users_details")
+                    .select("name, surname")
+                    .eq("user_id", adData.owner_id)
+                    .single();
+
+                if (userError) throw userError;
+
+                setOwnerDetails(userData);
+            } catch (error) {
+                console.error("Błąd podczas pobierania danych:", error);
             }
             setLoading(false);
         };
 
-        fetchAdDetails();
+        fetchDetails();
     }, [id, supabase]);
 
     if (loading) {
@@ -54,89 +58,74 @@ const AnnouncementDetails = () => {
     if (!adDetails) {
         return <p>Nie znaleziono ogłoszenia</p>;
     }
-    
+
     return (
-    console.log(announcement),
-    <div className={styles.page}>
+        <div className={styles.page}>
+            {/* Header */}
             <header className={styles.header}>
                 <img src={logo} className={styles.logo} alt="logo" />
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                
-                         {selectedRole === 'owner' && (
-                            <Button
-                                onClick={() => navigate('/animals')}
-                                variant="success"
-                                className={styles.animalsButton}
-                            >
-                                Twoje zwierzęta
-                            </Button>
-                        )}
-                            <Button
-                                onClick={() => navigate('/profile')}
-                                variant="primary"
-                                className={styles.profileButton}
-                            >
-                                Twój profil
-                            </Button>
-                            <Button
-                                onClick={() => navigate('/profile')}
-                                variant="primary"
-                                className={styles.profileButton}
-                            >
-                            </Button>
-                            <Button
-                                onClick={() => navigate('/announcements')}
-                                variant="info"
-                                className={styles.announcementButton}
-                            >
-                                Twoje ogłoszenia
-                            </Button>
-                           
-                     
+                <div className={styles.headerButtons}>
+                    <Button onClick={() => navigate("/profile")} variant="primary">
+                        Twój profil
+                    </Button>
+                    <Button onClick={() => navigate("/announcements")} variant="info">
+                        Twoje ogłoszenia
+                    </Button>
                 </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Button onClick={() => navigate('/register')} variant="success">
-                            Zarejestruj się
-                        </Button>
-                    </div>
             </header>
 
+            {/* Main Content */}
             <div className={styles.mainContent}>
-
-
-    <div className="ad-container">
-      <div className="ad-header">
-        {/* <h1>{ad.name}</h1> */}
-        <h1>Szczegóły ogłoszenia</h1>
-      <p><strong>ID:</strong> {id}</p>
-      <p><strong>Nazwa:</strong> {announcement?.name || 'Brak danych'}</p>
-      <p><strong>Opis:</strong> {announcement?.description || 'Brak danych'}</p>
-
-      </div>
-      <div className="ad-image">
-       {/* // <img src={ad.imageUrl} alt={`Zdjęcie ${ad.animal}`} /> */}
-      </div>
-      <div className="ad-details">
-        <p>
-          {/* <strong>Gatunek:</strong> {ad.animal_type} */}
-        </p>
-        <p>
-          {/* <strong>Lokalizacja:</strong> {ad.location} */}
-        </p>
-        <p>
-          {/* <strong>Dodano:</strong> {ad.added_at} */}
-        </p>
-      </div>
-      <div className="ad-description">
-        {/* <p>{ad.text}</p> */}
-      </div>
-      <a href="/" className="back-btn">
-        Powrót
-      </a>
-    </div>
-    </div>
-    </div>
-  );
-}
+                <div className={styles.adContainer}>
+                    <div className={styles.adImage}>
+                        <img
+                            src={announcement?.imageUrl || "default_image_url.png"}
+                            alt={announcement?.name || "Zdjęcie ogłoszenia"}
+                            className={styles.image}
+                        />
+                    </div>
+                    <div className={styles.adDetails}>
+                        <h1 className={styles.adTitle}>{announcement?.name || "Ogłoszenie"}</h1>
+                        <p className={styles.adDescription}>
+                            <strong>Opis:</strong> {announcement?.text || "Brak opisu"}
+                        </p>
+                        <p>
+                            <strong>Dodano:</strong>{" "}
+                            {adDetails?.added_at
+                                ? new Date(adDetails.added_at).toLocaleDateString()
+                                : "Brak danych"}
+                        </p>
+                        <p>
+                            <strong>Lokalizacja:</strong> {announcement?.location || "Brak danych"}
+                        </p>
+                        <p>
+                            <strong>Typ ogłoszenia:</strong>{" "}
+                            {announcement?.announcement_type === "offering_services"
+                                ? "Usługi"
+                                : "Poszukiwany opiekun"}
+                        </p>
+                        <p>
+                            <strong>Właściciel ogłoszenia:</strong>{" "}
+                            {ownerDetails
+                                ? `${ownerDetails.name} ${ownerDetails.surname}`
+                                : "Brak danych"}
+                        </p>
+                    </div>
+                    <div className={styles.adButtons}>
+                        <Button
+                            onClick={() => navigate("/")}
+                            variant="outline-secondary"
+                        >
+                            Powrót do ogłoszeń
+                        </Button>
+                    </div>
+                </div>
+            </div>
+            <footer className={styles.footer}>
+                <p>© Amelia</p>
+            </footer>
+        </div>
+    );
+};
 
 export default AnnouncementDetails;
