@@ -50,7 +50,12 @@ const MainPage = () => {
                     setSelectedRole(userDetails.account_type);
                     setFilters((prevFilters) => ({
                         ...prevFilters,
-                        announcement_type: userDetails.account_type === 'owner' ? 'looking_for_sitter':'offering_services', // Nowy filtr dla rodzaju ogłoszeń
+                        announcement_type: 
+                            userDetails.account_type === 'owner'
+                            ? 'looking_for_sitter'
+                            : userDetails.account_type === 'petsitter'
+                            ? 'offering_services'
+                            : '', // Do not preselect for 'both'
                     }));
                 } else {
                     console.error('Błąd pobierania szczegółów użytkownika:', error);
@@ -67,65 +72,86 @@ const MainPage = () => {
                 ...prevFilters,
                 location: userDetails.location || '',
                 animal_type: userDetails.animal_type || '',
-                announcement_type: userDetails.account_type === 'owner' ? 'looking_for_sitter' : 'offering_services',
-            }));
+                announcement_type:
+                userDetails.account_type === 'owner'
+                    ? 'looking_for_sitter'
+                    : userDetails.account_type === 'petsitter'
+                    ? 'offering_services'
+                    : '', // Keep it empty for 'both'
+                }));
         }
     }, [userDetails]);
 
     // Pobierz ogłoszenia na podstawie roli i filtrów
     // Pobierz ogłoszenia na podstawie roli i filtrów
-useEffect(() => {
-    const fetchAnnouncements = async () => {
-        setLoading(true);
-
-        let query = supabase
-            .from('announcement')
-            .select(`
-                *,
-                animals:animal_id (
-                    name,
-                    breed,
-                    animal_type,
-                    animal_photo
-                )
-            `)
-            .eq('active', true) // Tylko aktywne ogłoszenia
-            .order('added_at', { ascending: false });
-
-        // Wykluczenie ogłoszeń użytkownika
-        if (user?.id) {
-            query = query.not('owner_id', 'eq', user.id);
-        }
-
-        // Filtrowanie wg lokalizacji
-        if (filters.location) {
-            query = query.ilike('location', `%${filters.location}%`);
-        }
-
-        // Filtrowanie wg rodzaju ogłoszenia
-        if (filters.announcement_type) {
-            query = query.eq('announcement_type', filters.announcement_type);
-        }
-
-        // Filtrowanie wg rodzaju zwierzęcia
-        if (filters.animal_type) {
-            query = query.filter('animal_type', 'cs', `"${filters.animal_type}"`);
-        }
-
-        const { data, error } = await query;
-        if (error) {
-            console.error('Błąd pobierania ogłoszeń:', error);
-        } else {
-            setAds(data);
-        }
-        setLoading(false);
-    };
-
-    fetchAnnouncements();
-}, [filters, user]);
-
-
+    useEffect(() => {
+        const fetchAnnouncements = async () => {
+            setLoading(true);
     
+            let query = supabase
+                .from('announcement')
+                .select(`
+                    *,
+                    animals:animal_id (
+                        name,
+                        breed,
+                        animal_type,
+                        animal_photo
+                    )
+                `)
+                .eq('active', true) // Tylko aktywne ogłoszenia
+                .order('added_at', { ascending: false });
+    
+            // Wykluczenie ogłoszeń użytkownika
+            if (user?.id) {
+                query = query.not('owner_id', 'eq', user.id);
+            }
+    
+            // Filtrowanie wg lokalizacji
+            if (filters.location) {
+                query = query.ilike('location', `%${filters.location}%`);
+            }
+    
+            // Filtrowanie wg rodzaju ogłoszenia
+            if (filters.announcement_type) {
+                query = query.eq('announcement_type', filters.announcement_type);
+            }
+    
+            // Filtrowanie wg rodzaju zwierzęcia
+            if (filters.animal_type) {
+                query = query.filter('animal_type', 'cs', `"${filters.animal_type}"`);
+            }
+    
+            const { data, error } = await query;
+            if (error) {
+                console.error('Błąd pobierania ogłoszeń:', error);
+            } else {
+                // Pobierz dane użytkowników (owner_id) dla każdego ogłoszenia
+                const adsWithUserDetails = await Promise.all(data.map(async (ad) => {
+                    const { data: userDetails } = await supabase
+                        .from('users_details')
+                        .select('name')
+                        .eq('user_id', ad.owner_id)
+                        .single(); // Zakładając, że owner_id jest unikalne
+    
+                     
+                        if (error) {
+                            console.error("Błąd pobierania szczegółów użytkownika:", error);
+                            return ad;
+                        }
+
+                        return { ...ad, userDetails }; // Dodajemy dane użytkownika do ogłoszenia
+                    }));
+    
+                setAds(adsWithUserDetails);
+            }
+            setLoading(false);
+        };
+    
+        fetchAnnouncements();
+    }, [filters, user]);
+    
+
 
     useEffect(() => {
         const loadImages = async () => {
@@ -384,13 +410,20 @@ useEffect(() => {
                                     onClick={() => navigate(`/ad/${ad.announcement_id}`, { state: ad })}
                                 >
                                     {ad.announcement_type === "offering_services" ? (console.log(ad)):null}
+                                    <h3>{ad.name}</h3>
                                     <img
                                         src={imageUrls[ad.announcement_id] || "default_image_url.png"} // Domyślne zdjęcie w razie problemów
                                         alt={ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}
                                         className={styles.profilePicture}
                                         style={{maxHeight: '100px'}}
                                     />
-                                    <h3>{ad.name}</h3>
+                                    
+                                    <strong>
+                                      {ad.announcement_type === "offering_services"
+                                        ? ad.userDetails?.name || "Opiekun nieznany"  // Sprawdzamy, czy dane użytkownika są dostępne
+                                        : ad.animals?.name || "Zwierzę nieznane"}
+                                    </strong>
+                                    <p></p>
                                     {/* <p>{ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}</p> */}
                                     <p>{ad.animal_type}</p>
                                     {/* <p>{ad.text}</p> */}

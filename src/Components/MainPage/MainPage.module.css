@@ -214,17 +214,21 @@ button:active {
 }
 
 .profilePicture {
-    width: 150px; /* Maksymalna szerokość obrazu */
-    height: 150px; /* Maksymalna wysokość obrazu */
+    width: 200px; /* Zwiększona szerokość obrazu */
+    min-height: 200px; /* Zwiększona wysokość obrazu */
     object-fit: cover; /* Skalowanie obrazu, aby wypełniał kontener */
-    border-radius: 50%; /* Zaokrąglone rogi dla zdjęcia profilowego */
+    border-radius: 5%; /* Zaokrąglone rogi dla zdjęcia profilowego */
     border: 2px solid #ccc; /* Opcjonalne obramowanie */
     display: block;
     margin: 0 auto; /* Wyśrodkowanie obrazu */
-  }
+}
 
 .adCard p {
     margin: 0;
+}
+
+.adCard h3 {
+    margin: 5px 0;
 }
 
 .adCard:hover {

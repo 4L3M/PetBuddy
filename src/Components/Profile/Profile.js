@@ -26,6 +26,28 @@ const Profile = () => {
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
   const accountTypes = ["owner", "petsitter"];
 
+
+  // Funkcja do obsługi wyboru roli
+  const toggleAccountType = (type) => {
+    setIsSaved(false); // Ukryj komunikat "Zapisano zmiany"
+  
+    setAccountType((prevType) => {
+      if (prevType === "both") {
+        // Jeśli oba typy były zaznaczone, usuń wybrany typ
+        return type === "owner" ? "petsitter" : "owner";
+      } else if (prevType === type) {
+        // Jeśli bieżący typ jest zaznaczony, odznacz go
+        return "";
+      } else if (prevType) {
+        // Jeśli istnieje inny typ, ustaw "both"
+        return "both";
+      } else {
+        // W przeciwnym razie ustaw nowy typ
+        return type;
+      }
+    });
+  };
+
   const fetchUserData = async () => {
     const sessionResponse = await supabase.auth.getSession();
     const session = sessionResponse.data.session;
@@ -50,6 +72,7 @@ const Profile = () => {
         setProfilePicture(userData.user_photo || ""); // Pobierz URL zdjęcia
         setPhone(userData.phone || ""); // Pobierz numer telefonu
       }
+      console.log("Account type:", accountType);
     } else {
       navigate("/login");
     }
@@ -114,13 +137,19 @@ const Profile = () => {
       }
     }
 
+    const finalAccountType =
+    accountType === "both" || accountType.includes("owner") && accountType.includes("petsitter")
+      ? "both"
+      : accountType;
+
+
     const { data, error } = await supabase
       .from("users_details")
       .update({
         name: name || "",
         surname: surname || "",
         location: location || "",
-        account_type: accountType || "",
+        account_type: finalAccountType || "",
         user_photo: profilePictureUrl || "",
         phone: phone || "",
       })
@@ -205,9 +234,9 @@ const Profile = () => {
                   key={type}
                   type="button"
                   className={`${styles.roleButton} ${
-                    accountType === type ? styles.activeRole : ""
+                    accountType === type || accountType === "both" ? styles.activeRole : ""
                   }`}
-                  onClick={() => setAccountType(type)}
+                  onClick={() => toggleAccountType(type)}
                 >
                   {type === "owner" ? "Właściciel" : "Opiekun"}
                 </button>
