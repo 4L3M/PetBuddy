@@ -184,9 +184,7 @@ useEffect(() => {
 
     const fetchImage = async (ad) => {
         try {
-            if (ad.announcement_type === "looking_for_sitter"){
-                console.log(ad)
-            }
+            
             
             if (ad.announcement_type === "looking_for_sitter" && ad?.animal_id) {
                 
@@ -201,14 +199,7 @@ useEffect(() => {
                     console.error("Błąd podczas pobierania zdjęcia zwierzęcia:", error);
                     return "default_pet_image_url.png"; // Domyślne zdjęcie
                 } 
-                console.log(animalDetails)
-                if (animalDetails?.animal_photo) {
-                    const { publicURL } = supabase.storage
-                        .from("photos")
-                        .getPublicUrl(animalDetails.animal_photo);
-                        console.log(publicURL)
-                    return publicURL || "default_pet_image_url.png";
-                }
+                return animalDetails.animal_photo;
             } else if (ad.announcement_type === "offering_services" && ad?.owner_id) {
                 // Pobierz zdjęcie użytkownika
                 const { data: userDetails, error } = await supabase
@@ -221,15 +212,8 @@ useEffect(() => {
                     console.error("Błąd podczas pobierania zdjęcia użytkownika:", error);
                     return "default_petsitter_image_url.png"; // Domyślne zdjęcie
                 }
-                console.log(userDetails)
 
-                if (userDetails?.user_photo) {
-                    const { publicURL } = supabase.storage
-                        .from("photos")
-                        .getPublicUrl(userDetails.user_photo);
-                    return publicURL || "default_petsitter_image_url.png";
-                    
-                }
+                return userDetails?.user_photo;
             }
         } catch (error) {
             console.error("Błąd podczas pobierania zdjęcia:", error);
@@ -399,11 +383,12 @@ useEffect(() => {
                                     className={styles.adCard}
                                     onClick={() => navigate(`/ad/${ad.announcement_id}`, { state: ad })}
                                 >
-                                    
+                                    {ad.announcement_type === "offering_services" ? (console.log(ad)):null}
                                     <img
                                         src={imageUrls[ad.announcement_id] || "default_image_url.png"} // Domyślne zdjęcie w razie problemów
                                         alt={ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}
-                                        className={styles.adImage}
+                                        className={styles.profilePicture}
+                                        style={{maxHeight: '100px'}}
                                     />
                                     <h3>{ad.name}</h3>
                                     {/* <p>{ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}</p> */}

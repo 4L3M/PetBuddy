@@ -35,6 +35,7 @@ button {
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    margin-left:15px;
 }
 
 button:hover {
@@ -216,8 +217,13 @@ button:active {
 .adDetails {
     flex-grow: 1;
     display: flex;
+    justify-content: flex-start;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;;
+}
+
+.adContainer p {
+    margin: 5px;
 }
 
 .adTitle {

@@ -32,7 +32,7 @@ const AnnouncementDetails = () => {
                 if (adError) throw adError;
 
                 setAdDetails(adData);
-
+                
                 // Pobieranie szczegółów właściciela ogłoszenia, w tym numeru telefonu
                 const { data: userData, error: userError } = await supabase
                     .from("users_details")
@@ -47,26 +47,29 @@ const AnnouncementDetails = () => {
                 // Pobieranie obrazu ogłoszenia
                 const fetchImage = async () => {
                     if (adData.imageUrl) {
+                        
                         setImageUrl(adData.imageUrl);
                     } else {
                         // Sprawdź w tabelach animals i users_details, czy są obrazy
                         const { data: animalData, error: animalError } = await supabase
                             .from("animals")
-                            .select("imageUrl")
+                            .select("animal_photo")
                             .eq("owner_id", adData.owner_id)
                             .single();
-
-                        if (animalData && !animalError) {
-                            setImageUrl(animalData.imageUrl);
+                        if (animalData && !animalError && 
+                            adData.announcement_type !=="offering_services"
+                        ) {
+                            setImageUrl(animalData.animal_photo);
                         } else {
                             const { data: userDetails, error: userError } = await supabase
                                 .from("users_details")
-                                .select("imageUrl")
+                                .select("user_photo")
                                 .eq("user_id", adData.owner_id)
                                 .single();
-
+                              
                             if (userDetails && !userError) {
-                                setImageUrl(userDetails.imageUrl);
+                                
+                                setImageUrl(userDetails.user_photo);
                             }
                         }
                     }
@@ -124,18 +127,20 @@ const AnnouncementDetails = () => {
                     </div>
                     <div className={styles.adDetails}>
                         <h1 className={styles.adTitle}>{announcement?.name || "Ogłoszenie"}</h1>
-                        
-                        <p>
-                            <strong>Typ ogłoszenia:</strong>{" "}
-                            {announcement?.announcement_type === "offering_services"
-                                ? "Usługi"
-                                : "Poszukiwany opiekun"}
-                        </p>
                         <p>
                             <strong>Właściciel ogłoszenia:</strong>{" "}
                             {ownerDetails
                                 ? `${ownerDetails.name} ${ownerDetails.surname}`
                                 : "Brak danych"}
+                        </p>
+                        <p className={styles.adDescription}>
+                            <strong>Opis:</strong> {announcement?.text || "Brak opisu"}
+                        </p>
+                        <p>
+                            <strong>Typ ogłoszenia:</strong>{" "}
+                            {announcement?.announcement_type === "offering_services"
+                                ? "Usługi"
+                                : "Poszukiwany opiekun"}
                         </p>
                         {ownerDetails?.phone && (
                             <p>
@@ -143,12 +148,7 @@ const AnnouncementDetails = () => {
                                 {ownerDetails.phone}
                             </p>
                         )}
-                    </div>
-                    
-                    <p className={styles.adDescription}>
-                        <strong>Opis:</strong> {announcement?.text || "Brak opisu"}
-                    </p>
-                    
+                    </div>                    
                     <p>
                         <strong>Lokalizacja:</strong> {announcement?.location || "Brak danych"}
                     </p>
