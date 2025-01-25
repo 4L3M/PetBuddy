@@ -109,10 +109,62 @@ textarea {
     min-height: 100px;
 }
 
+.toggleActiveButton {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  font-weight: lighter;
+  cursor: pointer;
+}
+
+.toggleActiveButton.danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.toggleActiveButton.success {
+  background-color: #28a745;
+  color: white;
+}
+
+.toggleActiveButton:hover {
+  opacity: 0.9;
+}
+
+/* Styl szarego przycisku */
+.toggleActiveButton.disabled {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  /* Pozostałe style przycisków */
+  .toggleActiveButton.danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .toggleActiveButton.success {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .toggleActiveButton:hover {
+    opacity: 0.9;
+  }
+  
+  .toggleActiveButton:active {
+    transform: scale(0.98);
+    background-color: #555 ;
+    color: #fff;
+  }
+
 /* Przyciski */
 button[type="submit"],
 .logoutButton {
-    background-color: #A4D5E7;
+    background-color: #e6739f;
     color: #ffffff;
     border: none;
     border-radius: 5px;

@@ -103,6 +103,24 @@ const EditAnnouncement = () => {
     }
   };
 
+  const toggleActiveStatus = async () => {
+    try {
+      // Zmieniamy status aktywności ogłoszenia
+      const { error: updateError } = await supabase
+        .from('announcement')
+        .update({ active: !formData.active })
+        .eq('announcement_id', id);
+
+      if (updateError) throw updateError;
+      
+      // Po pomyślnym zaktualizowaniu, zmieniamy stan aktywności w formularzu
+      setFormData((prevData) => ({ ...prevData, active: !prevData.active }));
+    } catch (err) {
+      console.error('Błąd podczas aktualizacji statusu aktywności:', err);
+      setError('Nie udało się zmienić statusu aktywności ogłoszenia.');
+    }
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -212,8 +230,17 @@ const EditAnnouncement = () => {
                 onChange={handleInputChange}
               />
             </label>
+
             <Button type="submit" variant="success">
               Zaktualizuj ogłoszenie
+            </Button>
+
+            <Button
+              variant={formData.active ? 'danger' : 'success'}
+              className={`${styles.toggleActiveButton} ${formData.active ? styles.disabled : ''}`}
+              onClick={toggleActiveStatus}
+            >
+              {formData.active ? 'Wyłącz' : 'Aktywuj'} ogłoszenie
             </Button>
           </form>
         )}

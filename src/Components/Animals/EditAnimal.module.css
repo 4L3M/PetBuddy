@@ -131,6 +131,16 @@
     margin: 0;
 }
 
+.profilePicture {
+    width: 150px; /* Maksymalna szerokość obrazu */
+    height: 150px; /* Maksymalna wysokość obrazu */
+    object-fit: cover; /* Skalowanie obrazu, aby wypełniał kontener */
+    border-radius: 50%; /* Zaokrąglone rogi dla zdjęcia profilowego */
+    border: 2px solid #ccc; /* Opcjonalne obramowanie */
+    display: block;
+    margin: 0 auto; /* Wyśrodkowanie obrazu */
+  }
+
 /* Responsywność */
 @media (max-width: 768px) {
     .mainContent {

@@ -3,7 +3,6 @@ import logo from "../Assets/logo.png";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { GlobalContext } from "../../GlobalContext";
-
 import styles from "./AnnouncementDetails.module.css";
 
 const AnnouncementDetails = () => {
@@ -15,12 +14,14 @@ const AnnouncementDetails = () => {
     const announcement = location.state;
     const [adDetails, setAdDetails] = useState(null);
     const [ownerDetails, setOwnerDetails] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDetails = async () => {
             setLoading(true);
             try {
+                
                 // Pobieranie szczegółów ogłoszenia
                 const { data: adData, error: adError } = await supabase
                     .from("announcement")
@@ -32,16 +33,47 @@ const AnnouncementDetails = () => {
 
                 setAdDetails(adData);
 
-                // Pobieranie szczegółów właściciela ogłoszenia
+                // Pobieranie szczegółów właściciela ogłoszenia, w tym numeru telefonu
                 const { data: userData, error: userError } = await supabase
                     .from("users_details")
-                    .select("name, surname")
+                    .select("name, surname, phone") // Dodano 'phone'
                     .eq("user_id", adData.owner_id)
                     .single();
 
                 if (userError) throw userError;
 
                 setOwnerDetails(userData);
+
+                // Pobieranie obrazu ogłoszenia
+                const fetchImage = async () => {
+                    if (adData.imageUrl) {
+                        setImageUrl(adData.imageUrl);
+                    } else {
+                        // Sprawdź w tabelach animals i users_details, czy są obrazy
+                        const { data: animalData, error: animalError } = await supabase
+                            .from("animals")
+                            .select("imageUrl")
+                            .eq("owner_id", adData.owner_id)
+                            .single();
+
+                        if (animalData && !animalError) {
+                            setImageUrl(animalData.imageUrl);
+                        } else {
+                            const { data: userDetails, error: userError } = await supabase
+                                .from("users_details")
+                                .select("imageUrl")
+                                .eq("user_id", adData.owner_id)
+                                .single();
+
+                            if (userDetails && !userError) {
+                                setImageUrl(userDetails.imageUrl);
+                            }
+                        }
+                    }
+                };
+
+                await fetchImage();
+
             } catch (error) {
                 console.error("Błąd podczas pobierania danych:", error);
             }
@@ -64,13 +96,19 @@ const AnnouncementDetails = () => {
             {/* Header */}
             <header className={styles.header}>
                 <img src={logo} className={styles.logo} alt="logo" />
-                <div className={styles.headerButtons}>
-                    <Button onClick={() => navigate("/profile")} variant="primary">
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <button className={styles.headerButton} onClick={() => navigate("/profile")}  >
                         Twój profil
-                    </Button>
-                    <Button onClick={() => navigate("/announcements")} variant="info">
+                    </button>
+                    <button className={styles.headerButton} onClick={() => navigate("/announcements")}>
                         Twoje ogłoszenia
-                    </Button>
+                    </button>
+                    <button className={styles.headerButton} onClick={() => navigate("/add-announcement")}>
+                        Powrót do ogłoszeń
+                    </button>
+                    <button className={styles.headerButton} onClick={() => navigate("/")}>
+                        Strona główna
+                    </button>
                 </div>
             </header>
 
@@ -79,25 +117,14 @@ const AnnouncementDetails = () => {
                 <div className={styles.adContainer}>
                     <div className={styles.adImage}>
                         <img
-                            src={announcement?.imageUrl || "default_image_url.png"}
+                            src={imageUrl || "default_image_url.png"} // Default image if no URL is found
                             alt={announcement?.name || "Zdjęcie ogłoszenia"}
                             className={styles.image}
                         />
                     </div>
                     <div className={styles.adDetails}>
                         <h1 className={styles.adTitle}>{announcement?.name || "Ogłoszenie"}</h1>
-                        <p className={styles.adDescription}>
-                            <strong>Opis:</strong> {announcement?.text || "Brak opisu"}
-                        </p>
-                        <p>
-                            <strong>Dodano:</strong>{" "}
-                            {adDetails?.added_at
-                                ? new Date(adDetails.added_at).toLocaleDateString()
-                                : "Brak danych"}
-                        </p>
-                        <p>
-                            <strong>Lokalizacja:</strong> {announcement?.location || "Brak danych"}
-                        </p>
+                        
                         <p>
                             <strong>Typ ogłoszenia:</strong>{" "}
                             {announcement?.announcement_type === "offering_services"
@@ -110,12 +137,29 @@ const AnnouncementDetails = () => {
                                 ? `${ownerDetails.name} ${ownerDetails.surname}`
                                 : "Brak danych"}
                         </p>
+                        {ownerDetails?.phone && (
+                            <p>
+                                <strong>Numer telefonu właściciela:</strong>{" "}
+                                {ownerDetails.phone}
+                            </p>
+                        )}
                     </div>
+                    
+                    <p className={styles.adDescription}>
+                        <strong>Opis:</strong> {announcement?.text || "Brak opisu"}
+                    </p>
+                    
+                    <p>
+                        <strong>Lokalizacja:</strong> {announcement?.location || "Brak danych"}
+                    </p>
+                    <p>
+                        <strong>Dodano:</strong>{" "}
+                        {adDetails?.added_at
+                            ? new Date(adDetails.added_at).toLocaleDateString()
+                            : "Brak danych"}
+                    </p>
                     <div className={styles.adButtons}>
-                        <Button
-                            onClick={() => navigate("/")}
-                            variant="outline-secondary"
-                        >
+                        <Button onClick={() => navigate("/")} variant="outline-secondary">
                             Powrót do ogłoszeń
                         </Button>
                     </div>

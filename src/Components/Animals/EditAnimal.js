@@ -183,7 +183,7 @@ const EditAnimal = () => {
                 <img
                   src={formData.animal_photo}
                   alt="Zdjęcie zwierzęcia"
-                  className={styles.preview}
+                  className={styles.profilePicture}
                 />
               ) : (
                 <p>Brak zdjęcia</p>

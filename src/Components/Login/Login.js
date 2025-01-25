@@ -67,11 +67,12 @@ const Login = () => {
                     </div>
 
                     <div className={styles.links}>
-                        <a href="#" className={styles.link}>Other ways to sign in</a>
-                        <a href="#" className={styles.link}>Forgot your password?</a>
+                        
                     </div>
 
-                    <button className={styles.createAccountButton}>Create an account</button>
+                    <button onClick={()=>navigate("/register" )} className={styles.createAccountButton}>
+                        Utwórz konto  
+                    </button>
                 </div>
             </div>
         </div>

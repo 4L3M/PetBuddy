@@ -10,17 +10,22 @@ const Profile = () => {
 
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
-  const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [accountType, setAccountType] = useState("");
+  const [phone, setPhone] = useState("");
   const [userId, setUserId] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isSaved, setIsSaved] = useState(false); // Nowy stan dla komunikatu "Zapisano zmiany"
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
   const accountTypes = ["owner", "petsitter"];
 
-  // Fetch user data function
   const fetchUserData = async () => {
     const sessionResponse = await supabase.auth.getSession();
     const session = sessionResponse.data.session;
@@ -43,6 +48,7 @@ const Profile = () => {
         setLocation(userData.location || "");
         setAccountType(userData.account_type || "");
         setProfilePicture(userData.user_photo || ""); // Pobierz URL zdjęcia
+        setPhone(userData.phone || ""); // Pobierz numer telefonu
       }
     } else {
       navigate("/login");
@@ -54,19 +60,23 @@ const Profile = () => {
   }, [supabase, navigate]);
 
   const handleFileChange = (event) => {
+    setIsSaved(false); // Ukryj komunikat, gdy użytkownik zmienia plik
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
     }
   };
 
-  // Function to upload a profile picture
+  const handleInputChange = (setter) => (event) => {
+    setIsSaved(false); // Ukryj komunikat, gdy użytkownik edytuje dowolne pole
+    setter(event.target.value);
+  };
+
   const uploadProfilePicture = async () => {
     if (!selectedFile) return null;
 
     const fileName = `${userId}_${selectedFile.name}`;
     try {
-      // Upload the file to Supabase storage
       const { data, error } = await supabase.storage
         .from("photos")
         .upload(fileName, selectedFile, { upsert: true });
@@ -76,7 +86,6 @@ const Profile = () => {
         return null;
       }
 
-      // Get the public URL for the uploaded file
       const { data: publicUrlData, error: publicUrlError } = supabase.storage
         .from("photos")
         .getPublicUrl(fileName);
@@ -93,13 +102,11 @@ const Profile = () => {
     }
   };
 
-  // Function to update user profile
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
 
     let profilePictureUrl = profilePicture;
 
-    // Upload new profile picture if a file was selected
     if (selectedFile) {
       const uploadedUrl = await uploadProfilePicture();
       if (uploadedUrl) {
@@ -107,7 +114,6 @@ const Profile = () => {
       }
     }
 
-    // Update user details in the database
     const { data, error } = await supabase
       .from("users_details")
       .update({
@@ -116,6 +122,7 @@ const Profile = () => {
         location: location || "",
         account_type: accountType || "",
         user_photo: profilePictureUrl || "",
+        phone: phone || "",
       })
       .eq("user_id", userId);
 
@@ -123,10 +130,43 @@ const Profile = () => {
       console.error("Błąd podczas aktualizacji danych:", error.message);
     } else {
       console.log("Dane użytkownika zostały zaktualizowane:", data);
-      // Refetch user data to reflect changes in the UI
+      setIsSaved(true); // Pokaż komunikat "Zapisano zmiany"
       fetchUserData();
     }
   };
+
+  const handlePasswordChange = async (event) => {
+    event.preventDefault();
+  
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Hasła nie są takie same.");
+      setPasswordSuccess("");
+      return;
+    }
+  
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+  
+      if (error) {
+        console.error("Błąd podczas zmiany hasła:", error.message);
+        setPasswordError("Nie udało się zmienić hasła.");
+        setPasswordSuccess(false);
+      } else {
+        console.log("Hasło zostało zmienione:", data);
+        setPasswordError("");
+        setPasswordSuccess(true);
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      console.error("Unexpected error during password change:", err);
+      setPasswordError("Wystąpił nieoczekiwany błąd.");
+      setPasswordSuccess(false);
+    }
+  };
+  
 
   return (
     <div className={styles.page}>
@@ -137,27 +177,51 @@ const Profile = () => {
           Powrót do strony głównej
         </button>
       </header>
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ display: "flex", flexDirection: 'column', justifyContent: "center" }}>
         <form className={styles.profileForm} onSubmit={handleUpdateProfile}>
-          {/* Profile picture section */}
           <div className={styles.inputGroup}>
             <label>Zdjęcie profilowe</label>
             <img
-              src={profilePicture || "default_picture_url.png"} // Default placeholder
+              src={profilePicture || "default_picture_url.png"}
               alt="Profile"
               className={styles.profilePicture}
             />
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+           <label htmlFor="fileUpload" className={styles.customFileButton}>
+            Wybierz zdjęcie
+          </label>
+          <input
+            id="fileUpload"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
           </div>
 
-          {/* Other fields */}
+          <div className={styles.inputGroup}>
+            <label>Typ konta</label>
+            <div className={styles.roleButtons}>
+              {accountTypes.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`${styles.roleButton} ${
+                    accountType === type ? styles.activeRole : ""
+                  }`}
+                  onClick={() => setAccountType(type)}
+                >
+                  {type === "owner" ? "Właściciel" : "Opiekun"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className={styles.inputGroup}>
             <label htmlFor="name">Imię</label>
             <input
               type="text"
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleInputChange(setName)}
               required
             />
           </div>
@@ -167,17 +231,26 @@ const Profile = () => {
               type="text"
               id="surname"
               value={surname}
-              onChange={(e) => setSurname(e.target.value)}
+              onChange={handleInputChange(setSurname)}
+              required
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="phone">Numer telefonu</label>
+            <input
+              type="text"
+              id="phone"
+              value={phone}
+              onChange={handleInputChange(setPhone)}
               required
             />
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="location">Lokalizacja</label>
             <select
-              className={styles.profile}
               id="location"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={handleInputChange(setLocation)}
               required
             >
               <option value="">Wybierz lokalizację</option>
@@ -192,7 +265,45 @@ const Profile = () => {
           <button type="submit" className={styles.updateButton}>
             Zapisz zmiany
           </button>
+
+          {isSaved && (
+            <p className={styles.savedMessage}>Zapisano zmiany</p>
+          )}
         </form>
+
+        <form className={styles.profileForm}  onSubmit={handlePasswordChange}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="newPassword">Nowe hasło</label>
+            <input
+              type="password"
+              id="newPassword"
+              value={newPassword}
+              onChange={handleInputChange(setNewPassword)}
+              required
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="confirmPassword">Potwierdź hasło</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={handleInputChange(setConfirmPassword)}
+              required
+            />
+          </div>
+          <button type="submit" className={styles.updateButton}>
+            Zmień hasło
+          </button>
+
+          {passwordError && (
+            <p className={styles.error}>{passwordError}</p>
+          )}
+          {passwordSuccess && (
+            <p className={styles.success}>Hasło zostało zmienione</p>
+          )}
+        </form>
+
       </div>
       <footer className={styles.footer}>
         <p>&copy; Amelia</p>

@@ -72,24 +72,33 @@ const UserAnnouncements = () => {
             <div className={styles.header}>
                 <h1>Twoje ogłoszenia</h1>
                 <button 
-                    className={styles.backButton} 
+                    className={styles.logoutButton} 
                     onClick={() => navigate('/')}>
                     Powrót do strony głównej
                 </button>
             </div>
             <div className={styles.container}>
+            <button 
+                    variant="success" 
+                    onClick={() => navigate('/add-announcement')}
+                    style={{ width: 'fit-content' }}
+                    >
+                        Dodaj nowe ogłoszenie
+            </button>
                 {announcements.length === 0 ? (
                     <p>Nie masz jeszcze żadnych ogłoszeń.</p>
                 ) : (
                     <div className={styles.announcementsList}>
                         {announcements.map((announcement) => (
-                            <Card key={announcement.announcement_id} 
-                                className={styles.card}>
+                            <Card 
+                                key={announcement.announcement_id} 
+                                className={`${styles.card} ${announcement.active === false ? styles.inactive : ''}`} // Dodajemy klasę 'inactive' jeśli ogłoszenie jest nieaktywne
+                            >
                                 <Card.Body>
-                                    <Card.Title>{announcement.name}</Card.Title>
-                                    <Card.Text>{announcement.text}</Card.Text>
-                                    <Card.Text><strong>Lokalizacja:</strong> {announcement.location}</Card.Text>
-                                    <Card.Text><strong>Dodano:</strong> {new Date(announcement.added_at).toLocaleDateString()}</Card.Text>
+                                    <div className={styles['announcement-title']}>{announcement.name}</div>
+                                    <div className={styles['announcement-text']}>{announcement.text}</div>
+                                    <div className={styles['announcement-location']}>Lokalizacja: {announcement.location}</div>
+                                    <div className={styles['announcement-date']}>Dodano: {new Date(announcement.added_at).toLocaleDateString()}</div>
                                     <button 
                                         variant="primary" 
                                         onClick={() => handleEditAnnouncement(announcement.announcement_id)}>
@@ -106,16 +115,10 @@ const UserAnnouncements = () => {
                         ))}
                     </div>
                 )}
-                <button 
-                    variant="success" 
-                    onClick={() => navigate('/add-announcement')}
-                    style={{ width: 'fit-content' }}
-                    >
-                        Dodaj nowe ogłoszenie
-                </button>
+
             </div>
             <footer className={styles.footer}>
-                Amelia &copy
+                <p>&copy; Amelia </p>
             </footer>
         </div>
     );

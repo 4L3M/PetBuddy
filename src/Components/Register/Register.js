@@ -91,26 +91,39 @@ const Register = () => {
 
   const handleSignUp = async (event) => {
     event.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     // Rejestracja użytkownika
     let { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
-
+  
     if (error) {
       setFormErrors({ email: "Błąd rejestracji: " + error.message });
       return;
     }
-
+  
     if (data?.user) {
       console.log(data);
       const id = data.user.id;
-
-      // Wstawienie danych do tabeli `users_details`
-      const { error } = await supabase
+  
+      // Aktualizacja numeru telefonu w tabeli auth.users
+      // const { error: phoneUpdateError } = await supabase.auth.updateUser({
+      //   data: { phone: phone },
+      // });
+      
+  
+      // if (phoneUpdateError) {
+      //   setFormErrors({
+      //     general: "Błąd podczas zapisywania numeru telefonu: " + phoneUpdateError.message,
+      //   });
+      //   return;
+      // }
+  
+      // Wstawienie danych do tabeli users_details
+      const { error: insertError } = await supabase
         .from("users_details")
         .insert([
           {
@@ -119,19 +132,20 @@ const Register = () => {
             surname: capitalizeWords(surname),
             account_type: role,
             location: location,
+            phone: phone,
           },
-        ])
-        .select();
-
-      if (error) {
+        ]);
+  
+      if (insertError) {
         setFormErrors({
-          general: "Błąd podczas zapisywania danych: " + error.message,
+          general: "Błąd podczas zapisywania danych: " + insertError.message,
         });
       } else {
         navigate("/");
       }
     }
   };
+  
 
   const handleRoleChange = (role) => {
     setRole(role);
@@ -261,12 +275,12 @@ const Register = () => {
               )}
             </div>
 
-            {/* <div className={styles.inputGroup}>
+            <div className={styles.inputGroup}>
               <label htmlFor="phone" className={styles.labelRegister}>
                 Numer telefonu
               </label>
               <input
-                type="tel"
+                type="text"
                 id="phone"
                 className={styles.inputLong}
                 placeholder="Wpisz swój numer telefonu"
@@ -277,7 +291,7 @@ const Register = () => {
               {formErrors.phone && (
                 <div className={styles.errorText}>{formErrors.phone}</div>
               )}
-            </div> */}
+            </div>
 
             <div className={styles.inputGroup}>
               <label htmlFor="password" className={styles.labelRegister}>

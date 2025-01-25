@@ -188,7 +188,7 @@ useEffect(() => {
                 console.log(ad)
             }
             
-            if (ad.announcement_type === "looking_for_sitter" && ad.animal_id) {
+            if (ad.announcement_type === "looking_for_sitter" && ad?.animal_id) {
                 
                 // Pobierz zdjęcie zwierzęcia
                 const { data: animalDetails, error } = await supabase
@@ -201,14 +201,15 @@ useEffect(() => {
                     console.error("Błąd podczas pobierania zdjęcia zwierzęcia:", error);
                     return "default_pet_image_url.png"; // Domyślne zdjęcie
                 } 
-    
+                console.log(animalDetails)
                 if (animalDetails?.animal_photo) {
                     const { publicURL } = supabase.storage
                         .from("photos")
                         .getPublicUrl(animalDetails.animal_photo);
+                        console.log(publicURL)
                     return publicURL || "default_pet_image_url.png";
                 }
-            } else if (ad.announcement_type === "offering_services") {
+            } else if (ad.announcement_type === "offering_services" && ad?.owner_id) {
                 // Pobierz zdjęcie użytkownika
                 const { data: userDetails, error } = await supabase
                     .from("users_details")
@@ -216,17 +217,18 @@ useEffect(() => {
                     .eq("user_id", ad.owner_id)
                     .single();
                 
-    
                 if (error) {
                     console.error("Błąd podczas pobierania zdjęcia użytkownika:", error);
                     return "default_petsitter_image_url.png"; // Domyślne zdjęcie
                 }
-    
+                console.log(userDetails)
+
                 if (userDetails?.user_photo) {
                     const { publicURL } = supabase.storage
                         .from("photos")
                         .getPublicUrl(userDetails.user_photo);
                     return publicURL || "default_petsitter_image_url.png";
+                    
                 }
             }
         } catch (error) {
@@ -316,7 +318,19 @@ useEffect(() => {
                     </div>
                 )}
             </header>
-
+          
+            <div style={{ paddingRight: '5%', paddingLeft: '5%',display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2>
+                    {userDetails ? `${userDetails.name}, ogłoszenia dla Ciebie` : 'Ogłoszenia dla Ciebie'}
+                </h2>
+                <button 
+                    id="add-announcement"
+                    onClick={() => userDetails ? navigate('/add-announcement') : navigate('/login')}
+                    disabled={!userDetails && false} // Przy braku użytkownika umożliwiamy tylko przekierowanie do logowania
+                    >
+                    {userDetails ? 'Dodaj ogłoszenie' : 'Zaloguj się, aby dodać ogłoszenie'}
+                </button>
+            </div>
             <div className={styles.mainContent}>
                 {user && (
                     <div className={styles.sideFilters}>
@@ -373,20 +387,7 @@ useEffect(() => {
                     </div>
                 )}
 
-                <div className={styles.ads}>
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h2>
-                        {userDetails ? `${userDetails.name} ogłoszenia dla Ciebie` : 'Ogłoszenia dla Ciebie'}
-                    </h2>
-                    <button 
-                        id = "add-announcement"
-                        onClick={() => navigate('/add-announcement')}
-                        disabled={!userDetails}
-                    >
-                        {userDetails ? 'Dodaj ogłoszenie' : 'Zaloguj się, aby dodać ogłoszenie'}
-                    </button>
-                </div>
-            
+                <div className={styles.ads}>           
 
                     {loading ? (
                         <p>Ładowanie ogłoszeń...</p>
@@ -406,9 +407,9 @@ useEffect(() => {
                                     />
                                     <h3>{ad.name}</h3>
                                     {/* <p>{ad.announcement_type === "offering_services" ? "Opiekun" : "Zwierzę"}</p> */}
-                                    <p>Zwierzę: {ad.animal_type}</p>
+                                    <p>{ad.animal_type}</p>
                                     {/* <p>{ad.text}</p> */}
-                                    <p>Lokalizacja: {ad.location}</p>
+                                    <p>Lokalizacja: <strong>{ad.location}</strong></p>
                                     <p>Dodano: {new Date(ad.added_at).toLocaleDateString()}</p>
                                 </div>
                             ))}

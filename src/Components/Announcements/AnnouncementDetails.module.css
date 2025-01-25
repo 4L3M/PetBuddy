@@ -2,7 +2,9 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #f3f2e9;
+    background-color: #fafafa;
+    font-family: "Arial", sans-serif;
+    color: #333;
 }
 
 .header {
@@ -16,6 +18,37 @@
     align-items: center;
 }
 
+
+.buttonGroup {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #A4D5E7;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+button:hover {
+    background-color: #7bbcd6;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+    background-color: #5fa2c1;
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+
 .logo {
     width: 80px;
     height: 80px;
@@ -28,6 +61,8 @@
     flex-direction: row;
     gap: 10px;
 }
+
+
 
 .roleButton {
     padding: 10px 20px;
@@ -52,7 +87,7 @@
 /* Główna sekcja z układem */
 .mainContent {
     display: flex;
-    flex-direction: row; /* Filtry po lewej, ogłoszenia po prawej */
+    flex-direction: column; /* Filtry po lewej, ogłoszenia po prawej */
     justify-content: center;
     align-items: flex-start;
     gap: 20px;
@@ -142,5 +177,98 @@
 
     .adCard {
         width: 100%;
+    }
+}
+
+.headerButton {
+    background-color: transparent;
+    color: white;
+}
+
+.headerButton:hover {
+    background-color: transparent;
+    text-decoration: underline;
+    text-emphasis: bold;
+}
+
+.adContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1200px;
+    text-align: center; /* Center align the content */
+}
+
+.adImage img {
+    width: 300px;
+    height: auto;
+    border-radius: 10px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.adDetails {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.adTitle {
+    font-size: 28px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.adDescription {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.adButtons {
+    margin-top: 20px;
+}
+
+.adButtons button {
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.adButtons button:hover {
+    background-color: #fac9ce;
+}
+
+/* Stopka */
+.footer {
+    background-image: linear-gradient(to right, #beeab6, #a4d5e7, #af81ce, #fac9ce);
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    margin-top: auto;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .adContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .adImage img {
+        width: 100%;
+    }
+
+    .adDetails {
+        text-align: center;
     }
 }

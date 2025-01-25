@@ -41,6 +41,8 @@ button {
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
+
+
 button:hover {
     background-color: #7bbcd6;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -141,7 +143,8 @@ button:active {
     justify-content: center;
     align-items: flex-start;
     gap: 20px;
-    padding: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
 }
 
 .sideFilters {
@@ -188,8 +191,8 @@ button:active {
 }
 
 .adsList {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Ensures a responsive grid */
     gap: 20px;
 }
 
@@ -208,6 +211,10 @@ button:active {
     min-width: 200px;
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
+}
+
+.adCard p {
+    margin: 0;
 }
 
 .adCard:hover {
