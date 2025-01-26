@@ -57,21 +57,18 @@ const AddAnnouncement = () => {
     useEffect(() => {
         const fetchUserAnimals = async () => {
             const { data: userData } = await supabase.auth.getUser();
-
+    
             if (userData?.user) {
                 const { data: animals, error } = await supabase
                     .from('animals')
                     .select('animal_id, name, animal_type')
                     .eq('owner_id', userData.user.id);
-
+    
                 if (error) {
                     console.error('Błąd pobierania zwierząt:', error);
                 } else {
-                    setUserAnimals(animals || []);
-                    setFormData((prevData) => ({
-                        ...prevData,
-                        owner_id: userData.user.id
-                    }));
+                    console.log('Pobrane zwierzęta:', animals); // Logowanie danych
+                    setUserAnimals(animals || []); // Aktualizacja stanu
                 }
             }
         };
@@ -110,6 +107,12 @@ const AddAnnouncement = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
     
+           // Walidacja dla przypadku "szukam opiekuna"
+        if (formData.announcement_type === 'looking_for_sitter' && !formData.animal_id) {
+            alert('Proszę wybrać zwierzę, które potrzebuje opieki.');
+            return;
+        }
+
         // Jeśli animal_type jest pustą tablicą, ustawiamy ją na null
         const formattedAnimalType = formData.animal_type.length === 0 ? null : formData.animal_type;  // Bez JSON.stringify()
     
@@ -166,9 +169,10 @@ const AddAnnouncement = () => {
                                         className={styles.animalSelect}
                                         value={formData.animal_id}
                                         onChange={handleInputChange}
-                                        required
-                                    >
+                                        required={formData.announcement_type === 'looking_for_sitter'}
+                                        >
                                         <option value="">Wybierz...</option>
+                                        {console.log(userAnimals)}
                                         {userAnimals.map((animal) => (
                                             <option key={animal.animal_id} value={animal.animal_id}>
                                                 {animal.name}

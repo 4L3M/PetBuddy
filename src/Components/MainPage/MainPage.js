@@ -210,8 +210,6 @@ const MainPage = () => {
 
     const fetchImage = async (ad) => {
         try {
-            
-            
             if (ad.announcement_type === "looking_for_sitter" && ad?.animal_id) {
                 
                 // Pobierz zdjęcie zwierzęcia
@@ -222,6 +220,7 @@ const MainPage = () => {
                     .single(); 
     
                 if (error) {
+                    console.log(ad.animal_id)
                     console.error("Błąd podczas pobierania zdjęcia zwierzęcia:", error);
                     return "default_pet_image_url.png"; // Domyślne zdjęcie
                 } 
@@ -263,7 +262,7 @@ const MainPage = () => {
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                     {user ? (
                         <>
-                         {selectedRole === 'owner' && (
+                         {selectedRole === 'owner' || 'both' && (
                             <button
                                 onClick={() => navigate('/animals')}
                                 variant="success"
@@ -298,22 +297,22 @@ const MainPage = () => {
                         </>
                     ) : (
                         <div className={styles.buttonGroup}>
-                            <button
+                            {/* <button
                                 className={`${styles.animalsButton} ${
                                     selectedRole === 'petsitter' ? styles.selectedButton : ''
                                 }`}
                                 onClick={() => handleRoleChange('petsitter')}
                             >
                                 Chcę się opiekować zwierzętami
-                            </button>
-                            <button
+                            </button> */}
+                            {/* <button
                                  className={`${styles.roleButton} ${
                                     selectedRole === 'owner' ? styles.selectedButton : ''
                                 }`}
                                 onClick={() => handleRoleChange('owner')}
                             >
                                 Szukam opieki dla swojego zwierzęcia
-                            </button>
+                            </button> */}
                         </div>
                     )}
                 </div>
@@ -409,6 +408,7 @@ const MainPage = () => {
                                     className={styles.adCard}
                                     onClick={() => navigate(`/ad/${ad.announcement_id}`, { state: ad })}
                                 >
+                                    
                                     {ad.announcement_type === "offering_services" ? (console.log(ad)):null}
                                     <h3>{ad.name}</h3>
                                     <img

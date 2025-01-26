@@ -17,7 +17,7 @@ const EditAnnouncement = () => {
     location: '',
     added_at: '',
     active: true,
-    animal_ids: [],
+    animal_id: '',
     owner_id: '',
   });
   const [userAnimals, setUserAnimals] = useState([]); // Lista zwierząt użytkownika
@@ -67,6 +67,32 @@ const EditAnnouncement = () => {
     fetchData();
   }, [id, supabase]);
 
+  useEffect(() => {
+    const fetchUserAnimals = async () => {
+        const { data: userData } = await supabase.auth.getUser();
+ 
+        if (userData?.user) {
+            console.log('Zalogowany użytkownik:', userData.user); // Logowanie użytkownika
+            const { data: animals, error } = await supabase
+                .from('animals')
+                .select('animal_id, name, animal_type')
+                .eq('owner_id', userData.user.id);
+ 
+            if (error) {
+                console.error('Błąd pobierania zwierząt:', error);
+            } else {
+                console.log('Pobrane zwierzęta:', animals); // Logowanie pobranych zwierząt
+                setUserAnimals(animals || []); // Aktualizacja stanu
+            }
+        } else {
+            console.log('Brak danych użytkownika!');
+        }
+    };
+
+    fetchUserAnimals();
+}, [supabase]);
+
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
@@ -75,33 +101,53 @@ const EditAnnouncement = () => {
     }));
   };
 
-  const handleAnimalSelection = (animalId) => {
-    setFormData((prevData) => {
-      const isSelected = prevData.animal_ids.includes(animalId);
-      return {
+  const handleAnimalSelection = async (animalId) => {
+    const selectedAnimal = userAnimals.find(animal => animal.animal_id === animalId);
+    
+    if (selectedAnimal) {
+      // Ustawiamy animal_type na wartość zwierzęcia
+      setFormData((prevData) => ({
         ...prevData,
-        animal_ids: isSelected
-          ? prevData.animal_ids.filter((id) => id !== animalId)
-          : [...prevData.animal_ids, animalId],
-      };
-    });
+        animal_id: animalId,
+        animal_type: selectedAnimal.animal_type, // Ustawiamy typ zwierzęcia
+      }));
+  
+      // Po wybraniu zwierzęcia, zaktualizujemy ogłoszenie w bazie danych
+      try {
+        const { error } = await supabase
+          .from('announcement')
+          .update({
+            animal_type: selectedAnimal.animal_type, // Zaktualizowanie typu zwierzęcia
+          })
+          .eq('announcement_id', id);
+  
+        if (error) throw error;
+      } catch (err) {
+        console.error('Błąd podczas aktualizacji animal_type:', err);
+        setError('Nie udało się zaktualizować typu zwierzęcia.');
+      }
+    }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { error: updateError } = await supabase
         .from('announcement')
-        .update({ ...formData })
+        .update({
+          ...formData, // Zaktualizowanie całych danych formularza
+          animal_type: formData.animal_type, // Dodajemy animal_type do aktualizacji
+        })
         .eq('announcement_id', id);
-
+  
       if (updateError) throw updateError;
-      navigate('/');
+      navigate('/'); // Po pomyślnym zaktualizowaniu ogłoszenia, przekierowanie na stronę główną
     } catch (err) {
       console.error('Błąd podczas aktualizacji ogłoszenia:', err);
       setError('Nie udało się zaktualizować ogłoszenia.');
     }
   };
+  
 
   const toggleActiveStatus = async () => {
     try {
@@ -151,6 +197,7 @@ const EditAnnouncement = () => {
                     setFormData((prevData) => ({
                       ...prevData,
                       announcement_type: 'offering_services',
+                      animal_id: '', // Resetowanie wyboru zwierząt
                     }))
                   }
                 >
@@ -174,18 +221,24 @@ const EditAnnouncement = () => {
             {formData.announcement_type === 'looking_for_sitter' && (
               <div>
                 <p>Wybierz zwierzęta, które potrzebują opieki:</p>
-                <div className={styles.animalList}>
-                  {userAnimals.map((animal) => (
-                    <label key={animal.animal_id}>
-                      <input
-                        type="checkbox"
-                        checked={formData.animal_ids.includes(animal.animal_id)}
-                        onChange={() => handleAnimalSelection(animal.animal_id)}
-                      />
-                      {animal.name}
-                    </label>
-                  ))}
-                </div>
+                {userAnimals.length === 0 ? (
+                    <p>Nie posiadasz żadnych zwierząt.</p>
+                ) : (
+                    <select
+                        name="animal_id"
+                        className={styles.animalSelect}
+                        value={formData.animal_id}
+                        onChange={(e) => handleAnimalSelection(e.target.value)} // Zmieniamy na handleAnimalSelection
+                        required={formData.announcement_type === 'looking_for_sitter'}
+                    >
+                        <option value="">Wybierz...</option>
+                        {userAnimals.map((animal) => (
+                            <option key={animal.animal_id} value={animal.animal_id}>
+                                {animal.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
               </div>
             )}
 

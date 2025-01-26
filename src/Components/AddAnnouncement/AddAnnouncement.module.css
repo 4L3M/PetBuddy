@@ -184,3 +184,17 @@ input[type="checkbox" i] {
     padding: 10px;
     margin-top: auto;
 }
+
+.footer {
+    background-image: linear-gradient(to right, #BEEAB6, #A4D5E7, #AF81CE, #FAC9CE);
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9rem;
+    color: #ffffff;
+    margin-top: auto;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.footer p {
+    margin: 0;
+}
