@@ -16,33 +16,82 @@ const Profile = () => {
   const [userId, setUserId] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-  const [isSaved, setIsSaved] = useState(false); // Nowy stan dla komunikatu "Zapisano zmiany"
+  const [isSaved, setIsSaved] = useState(false);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
+  const [nameError, setNameError] = useState("");
+  const [surnameError, setSurnameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [accountTypeError, setAccountTypeError] = useState("");
+
   const locations = ["Babimost", "Wolsztyn", "Gdańsk", "Poznań", "Wrocław"];
   const accountTypes = ["owner", "petsitter"];
 
+  // Walidacja pól
+  const validateFields = () => {
+    let valid = true;
+
+    // Walidacja imienia
+    if (!name || /\d/.test(name)) {
+      setNameError("Imię nie może być puste ani zawierać cyfr.");
+      valid = false;
+    } else {
+      setNameError("");
+    }
+
+    // Walidacja nazwiska
+    if (!surname || /\d/.test(surname)) {
+      setSurnameError("Nazwisko nie może być puste ani zawierać cyfr.");
+      valid = false;
+    } else {
+      setSurnameError("");
+    }
+
+    // Walidacja numeru telefonu
+    const phoneRegex = /^[0-9]{9}$/;
+    if (!phone || !phoneRegex.test(phone)) {
+      setPhoneError("Numer telefonu musi składać się z 9 cyfr.");
+      valid = false;
+    } else {
+      setPhoneError("");
+    }
+
+    // Walidacja lokalizacji
+    if (!location) {
+      setLocationError("Lokalizacja jest wymagana.");
+      valid = false;
+    } else {
+      setLocationError("");
+    }
+
+    // Walidacja typu konta
+    if (!accountType) {
+      setAccountTypeError("Wybierz typ konta.");
+      valid = false;
+    } else {
+      setAccountTypeError("");
+    }
+
+    return valid;
+  };
 
   // Funkcja do obsługi wyboru roli
   const toggleAccountType = (type) => {
     setIsSaved(false); // Ukryj komunikat "Zapisano zmiany"
-  
+
     setAccountType((prevType) => {
       if (prevType === "both") {
-        // Jeśli oba typy były zaznaczone, usuń wybrany typ
         return type === "owner" ? "petsitter" : "owner";
       } else if (prevType === type) {
-        // Jeśli bieżący typ jest zaznaczony, odznacz go
         return "";
       } else if (prevType) {
-        // Jeśli istnieje inny typ, ustaw "both"
         return "both";
       } else {
-        // W przeciwnym razie ustaw nowy typ
         return type;
       }
     });
@@ -69,10 +118,9 @@ const Profile = () => {
         setSurname(userData.surname || "");
         setLocation(userData.location || "");
         setAccountType(userData.account_type || "");
-        setProfilePicture(userData.user_photo || ""); // Pobierz URL zdjęcia
-        setPhone(userData.phone || ""); // Pobierz numer telefonu
+        setProfilePicture(userData.user_photo || "");
+        setPhone(userData.phone || "");
       }
-      console.log("Account type:", accountType);
     } else {
       navigate("/login");
     }
@@ -128,6 +176,10 @@ const Profile = () => {
   const handleUpdateProfile = async (event) => {
     event.preventDefault();
 
+    if (!validateFields()) {
+      return;
+    }
+
     let profilePictureUrl = profilePicture;
 
     if (selectedFile) {
@@ -138,10 +190,9 @@ const Profile = () => {
     }
 
     const finalAccountType =
-    accountType === "both" || accountType.includes("owner") && accountType.includes("petsitter")
-      ? "both"
-      : accountType;
-
+      accountType === "both" || accountType.includes("owner") && accountType.includes("petsitter")
+        ? "both"
+        : accountType;
 
     const { data, error } = await supabase
       .from("users_details")
@@ -166,18 +217,18 @@ const Profile = () => {
 
   const handlePasswordChange = async (event) => {
     event.preventDefault();
-  
+
     if (newPassword !== confirmPassword) {
       setPasswordError("Hasła nie są takie same.");
       setPasswordSuccess("");
       return;
     }
-  
+
     try {
       const { data, error } = await supabase.auth.updateUser({
         password: newPassword,
       });
-  
+
       if (error) {
         console.error("Błąd podczas zmiany hasła:", error.message);
         setPasswordError("Nie udało się zmienić hasła.");
@@ -195,7 +246,6 @@ const Profile = () => {
       setPasswordSuccess(false);
     }
   };
-  
 
   return (
     <div className={styles.page}>
@@ -215,15 +265,15 @@ const Profile = () => {
               alt="Profile"
               className={styles.profilePicture}
             />
-           <label htmlFor="fileUpload" className={styles.customFileButton}>
-            Wybierz zdjęcie
-          </label>
-          <input
-            id="fileUpload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+            <label htmlFor="fileUpload" className={styles.customFileButton}>
+              Wybierz zdjęcie
+            </label>
+            <input
+              id="fileUpload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
           </div>
 
           <div className={styles.inputGroup}>
@@ -242,6 +292,7 @@ const Profile = () => {
                 </button>
               ))}
             </div>
+            {accountTypeError && <p className={styles.error}>{accountTypeError}</p>}
           </div>
 
           <div className={styles.inputGroup}>
@@ -253,6 +304,7 @@ const Profile = () => {
               onChange={handleInputChange(setName)}
               required
             />
+            {nameError && <p className={styles.error}>{nameError}</p>}
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="surname">Nazwisko</label>
@@ -263,6 +315,7 @@ const Profile = () => {
               onChange={handleInputChange(setSurname)}
               required
             />
+            {surnameError && <p className={styles.error}>{surnameError}</p>}
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="phone">Numer telefonu</label>
@@ -273,6 +326,7 @@ const Profile = () => {
               onChange={handleInputChange(setPhone)}
               required
             />
+            {phoneError && <p className={styles.error}>{phoneError}</p>}
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="location">Lokalizacja</label>
@@ -289,6 +343,7 @@ const Profile = () => {
                 </option>
               ))}
             </select>
+            {locationError && <p className={styles.error}>{locationError}</p>}
           </div>
 
           <button type="submit" className={styles.updateButton}>
@@ -300,7 +355,7 @@ const Profile = () => {
           )}
         </form>
 
-        <form className={styles.profileForm}  onSubmit={handlePasswordChange}>
+        <form className={styles.profileForm} onSubmit={handlePasswordChange}>
           <div className={styles.inputGroup}>
             <label htmlFor="newPassword">Nowe hasło</label>
             <input
@@ -332,7 +387,6 @@ const Profile = () => {
             <p className={styles.success}>Hasło zostało zmienione</p>
           )}
         </form>
-
       </div>
       <footer className={styles.footer}>
         <p>&copy; Amelia</p>

@@ -317,7 +317,7 @@ const MainPage = () => {
                     )}
                 </div>
                 {!user && (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className={styles.buttons}>
                         <button onClick={() => navigate('/login')} variant="primary">
                             Zaloguj się
                         </button>

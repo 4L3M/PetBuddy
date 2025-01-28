@@ -15,6 +15,11 @@
     justify-content: space-between;
     align-items: center;
 }
+.buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
 .logo {
     width: 80px;
@@ -255,6 +260,7 @@ button:active {
     text-align: center;
     padding: 10px;
     margin-top: auto;
+    color: #fff;
 }
 
 @media (max-width: 768px) {

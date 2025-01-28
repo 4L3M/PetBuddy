@@ -32,7 +32,7 @@ const Login = () => {
             <div className={styles.leftContainer}></div>
             <div className={styles.rightContainer}>
                 <header className={styles.header}>
-                        <a href="/" className={styles.homeLink}>Powrót do strony głównej</a>
+                        <button onClick={()=>navigate("/" )} className={styles.homeLink}>Powrót do strony głównej</button>
                     </header>
                 <div className={styles.imageContainer}>
                     <h2 className={styles.title}>Zaloguj się</h2>

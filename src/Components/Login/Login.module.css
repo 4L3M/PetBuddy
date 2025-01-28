@@ -42,12 +42,32 @@
   }
   
   .homeLink {
-    color: #000;
-    padding-right: 5%;
+    background-color: #E85579;
+    color: #fff;
+    padding: 1%;
+    padding: 10px 20px;
+    border-radius: 50px;
     text-decoration: none;
   }
+
+  
+.logoutButton {
+  background-color: #E6739F;
+}
+
+.logoutButton:hover {
+  background-color: #cf5b89;
+}
+
+.logoutButton:active {
+  background-color: #b14472;
+}
   
   .imageContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     max-width: 400px;
     margin: auto;
@@ -76,18 +96,23 @@
   .inputLong {
     width: 100%;
     padding: 10px;
-    margin-top: 5px;
+    margin: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
   }
   
   .loginButton {
     padding: 10px;
-    background-color: #4CAF50;
+    background-color: #9cd764;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin: 10px 0;
+  }
+
+  .loginButton:hover {
+    background-color: #7cbf3b;
   }
   
   .links {
@@ -104,11 +129,13 @@
   .createAccountButton {
     margin-top: 20px;
     padding: 10px;
-    background-color: #007BFF;
+    background-color: #64bad7;
+    border: #64bad7;
     color: white;
-    border: none;
-    border-radius: 5px;
+    width: fit-content;
+    border: solid 1px #ACDBEA;
     cursor: pointer;
+    margin: 0;
   }
   
   .footer {

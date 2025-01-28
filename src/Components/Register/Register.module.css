@@ -82,6 +82,10 @@
   width: 100%;
 }
 
+.form button {
+  margin: 0;
+}
+
 .inputGroup {
   margin-bottom: 15px;
   width: 100%;
@@ -211,9 +215,9 @@
 
 .roleButton {
   padding: 15px 25px;
-  border: 2px solid #ddd;
+  border: 2px solid #cc4081;
   border-radius: 50px;
-  background: #fff;
+  background: #e88550;
   cursor: pointer;
   font-size: 14px;
   text-align: center;

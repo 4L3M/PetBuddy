@@ -60,6 +60,7 @@ const Register = () => {
     }
     if (!role) errors.role = "Wybierz swoją rolę.";
     if (!location) errors.location = "Wybierz lokalizację.";
+    
     // Walidacja telefonu
     if (!phone.trim()) {
       errors.phone = "Numer telefonu jest wymagany.";
@@ -147,8 +148,19 @@ const Register = () => {
   };
   
 
-  const handleRoleChange = (role) => {
-    setRole(role);
+  const handleRoleChange = (selectedRole) => {
+    if (role === selectedRole) {
+      // Jeśli kliknięto już wybraną rolę, odznacz ją
+      setRole("");
+    } else if (role && role !== selectedRole) {
+      // Jeśli kliknięto drugą rolę, ustaw "both"
+      setRole("both");
+    } else {
+      // Jeśli żadna rola nie była wybrana, ustaw wybraną rolę
+      setRole(selectedRole);
+    }
+    console.log(selectedRole);
+    console.log(role);
   };
 
   return (
